@@ -246,6 +246,36 @@ export const campaignStatusStyles: Record<CampaignStatus, string> = {
   Completed: 'bg-fg/10 text-fg-muted',
 }
 
+/* ── Leads (pipeline kanban, for /dashboard/leads) ────────────── */
+export type LeadStage = 'New' | 'Contacted' | 'Qualified' | 'Proposal' | 'Won'
+export const leadStages: LeadStage[] = ['New', 'Contacted', 'Qualified', 'Proposal', 'Won']
+
+export interface Lead {
+  id: string
+  name: string
+  company: string
+  value: number
+  score: number
+  stage: LeadStage
+  source: 'Meta' | 'Google' | 'Email' | 'Referral' | 'Organic'
+  initials: string
+}
+
+export const leads: Lead[] = [
+  { id: 'l1', name: 'Ava Thompson', company: 'Northwind Co', value: 12000, score: 92, stage: 'New', source: 'Google', initials: 'AT' },
+  { id: 'l2', name: 'Marcus Lee', company: 'Pixel Forge', value: 4800, score: 64, stage: 'New', source: 'Meta', initials: 'ML' },
+  { id: 'l3', name: 'Priya Nair', company: 'Bloomgrid', value: 28000, score: 88, stage: 'Contacted', source: 'Referral', initials: 'PN' },
+  { id: 'l4', name: 'Diego Ramos', company: 'Vela Labs', value: 9500, score: 71, stage: 'Contacted', source: 'Organic', initials: 'DR' },
+  { id: 'l5', name: 'Sophie Klein', company: 'Arc Studio', value: 15500, score: 81, stage: 'Qualified', source: 'Email', initials: 'SK' },
+  { id: 'l6', name: 'Tom Becker', company: 'Quantal', value: 6200, score: 47, stage: 'Qualified', source: 'Meta', initials: 'TB' },
+  { id: 'l7', name: 'Hana Sato', company: 'Lumen AI', value: 42000, score: 95, stage: 'Proposal', source: 'Referral', initials: 'HS' },
+  { id: 'l8', name: 'Owen Walsh', company: 'Cedar & Co', value: 18800, score: 76, stage: 'Proposal', source: 'Google', initials: 'OW' },
+  { id: 'l9', name: 'Lena Petrova', company: 'Driftwave', value: 33000, score: 90, stage: 'Won', source: 'Email', initials: 'LP' },
+  { id: 'l10', name: 'Raj Patel', company: 'Stackbloom', value: 21000, score: 84, stage: 'Won', source: 'Organic', initials: 'RP' },
+  { id: 'l11', name: 'Mia Conti', company: 'Fernweh', value: 5400, score: 58, stage: 'New', source: 'Meta', initials: 'MC' },
+  { id: 'l12', name: 'Noah Kim', company: 'Brightline', value: 11200, score: 79, stage: 'Contacted', source: 'Google', initials: 'NK' },
+]
+
 export const campaigns: Campaign[] = [
   { id: 'c1', name: 'Summer Launch', audience: 'Lookalike 1% · US/CA', channel: 'Meta', status: 'Active', budget: 20000, spent: 12480, roas: 4.2, conversions: 1204, ctr: '2.8%', abTest: true },
   { id: 'c2', name: 'Retargeting — Cart', audience: 'Cart abandoners 30d', channel: 'Google', status: 'Active', budget: 10000, spent: 8120, roas: 5.6, conversions: 842, ctr: '4.1%', abTest: false },

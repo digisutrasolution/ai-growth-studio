@@ -213,3 +213,46 @@ export const campaignRows = [
   { name: 'Black Friday Teaser', status: 'Active', spend: '$21,300', roas: '3.8x', conv: '2,560' },
   { name: 'Brand Awareness — TikTok', status: 'Paused', spend: '$5,640', roas: '1.9x', conv: '410' },
 ]
+
+/* ── Campaigns (detailed, for /dashboard/campaigns) ───────────── */
+export type CampaignStatus = 'Active' | 'Scheduled' | 'Paused' | 'Completed'
+
+export interface Campaign {
+  id: string
+  name: string
+  audience: string
+  channel: 'Meta' | 'Google' | 'TikTok' | 'Email' | 'LinkedIn'
+  status: CampaignStatus
+  budget: number
+  spent: number
+  roas: number | null
+  conversions: number
+  ctr: string
+  abTest: boolean
+}
+
+export const channelStyles: Record<Campaign['channel'], string> = {
+  Meta: 'bg-blue-400/15 text-blue-400',
+  Google: 'bg-amber-400/15 text-amber-400',
+  TikTok: 'bg-fuchsia-400/15 text-fuchsia-400',
+  Email: 'bg-cyan-400/15 text-cyan-400',
+  LinkedIn: 'bg-violet-400/15 text-violet-400',
+}
+
+export const campaignStatusStyles: Record<CampaignStatus, string> = {
+  Active: 'bg-emerald-400/15 text-emerald-400',
+  Scheduled: 'bg-blue-400/15 text-blue-400',
+  Paused: 'bg-amber-400/15 text-amber-400',
+  Completed: 'bg-fg/10 text-fg-muted',
+}
+
+export const campaigns: Campaign[] = [
+  { id: 'c1', name: 'Summer Launch', audience: 'Lookalike 1% · US/CA', channel: 'Meta', status: 'Active', budget: 20000, spent: 12480, roas: 4.2, conversions: 1204, ctr: '2.8%', abTest: true },
+  { id: 'c2', name: 'Retargeting — Cart', audience: 'Cart abandoners 30d', channel: 'Google', status: 'Active', budget: 10000, spent: 8120, roas: 5.6, conversions: 842, ctr: '4.1%', abTest: false },
+  { id: 'c3', name: 'Newsletter Q4', audience: 'All subscribers', channel: 'Email', status: 'Scheduled', budget: 2000, spent: 0, roas: null, conversions: 0, ctr: '—', abTest: false },
+  { id: 'c4', name: 'Black Friday Teaser', audience: 'Engaged 90d', channel: 'Meta', status: 'Active', budget: 30000, spent: 21300, roas: 3.8, conversions: 2560, ctr: '3.3%', abTest: true },
+  { id: 'c5', name: 'Brand Awareness', audience: 'Interest: marketing', channel: 'TikTok', status: 'Paused', budget: 15000, spent: 5640, roas: 1.9, conversions: 410, ctr: '1.7%', abTest: false },
+  { id: 'c6', name: 'Demo Webinar Promo', audience: 'B2B · 50-500 emp', channel: 'LinkedIn', status: 'Active', budget: 12000, spent: 7350, roas: 3.1, conversions: 318, ctr: '0.9%', abTest: true },
+  { id: 'c7', name: 'Spring Sale (wrap-up)', audience: 'All customers', channel: 'Google', status: 'Completed', budget: 18000, spent: 18000, roas: 4.9, conversions: 2140, ctr: '3.6%', abTest: false },
+  { id: 'c8', name: 'Win-back Flow', audience: 'Churn risk 14d', channel: 'Email', status: 'Active', budget: 3000, spent: 1120, roas: 6.4, conversions: 540, ctr: '5.2%', abTest: true },
+]

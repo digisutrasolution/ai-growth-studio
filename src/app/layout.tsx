@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Sora, Inter } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/providers/theme-provider'
@@ -37,6 +37,13 @@ export const metadata: Metadata = {
     type: 'website',
   },
   twitter: { card: 'summary_large_image', title: 'AI Growth Studio', description: 'AI-powered digital marketing automation.' },
+}
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f6f7fc' },
+    { media: '(prefers-color-scheme: dark)', color: '#07080f' },
+  ],
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

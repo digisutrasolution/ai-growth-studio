@@ -92,13 +92,40 @@ src/
 
 ## 🗺 Roadmap
 
-This is **Phase 1** — the UI built with mock data. Planned phases:
-
 - [x] **Phase 1** — Marketing site + app dashboard shell (UI, mock data)
-- [ ] **Phase 2** — Fuller app screens (agents, campaigns, leads, customers)
-- [ ] **Phase 3** — Admin panel detail
-- [ ] **Phase 4** — Backend: auth + 2FA, PostgreSQL, OpenAI agent integration, billing
-- [ ] **Phase 5** — Infrastructure, security hardening, monitoring, deployment
+- [x] **Phase 2** — Fuller app screens (agents, campaigns, leads, customers, automation, reports, billing, settings, admin)
+- [~] **Phase 4** — Auth foundation (login/signup/session/guard) + Nova AI assistant & agents wired to Claude (with demo fallback)
+- [ ] **Phase 4 (remaining)** — Real auth + 2FA, PostgreSQL, Stripe billing
+- [ ] **Phase 5** — Infrastructure, security hardening, monitoring
+
+---
+
+## 🚀 Deploy (Vercel)
+
+This is a standard Next.js app — Vercel needs zero extra config.
+
+1. Push to GitHub (already at `digisutrasolution/ai-growth-studio`).
+2. On [vercel.com](https://vercel.com) → **Add New → Project** → import the repo. Vercel auto-detects Next.js.
+3. (Optional) add environment variables under **Settings → Environment Variables** to enable live AI:
+
+   | Variable | Purpose |
+   |---|---|
+   | `ANTHROPIC_API_KEY` | Live Claude responses for Nova + agents (recommended) |
+   | `OPENAI_API_KEY` | Alternative provider (used if no Anthropic key) |
+   | `CHAT_MODEL` | Optional model override (default `claude-opus-4-8`) |
+
+   Without these the AI features run in **demo mode** (canned responses) — the deploy still works.
+4. **Deploy.** Every push to `main` redeploys automatically.
+
+CLI alternative:
+
+```bash
+npm i -g vercel
+vercel        # preview deploy
+vercel --prod # production
+```
+
+> Auth uses an unsigned demo cookie and data is mocked — fine for a live demo, not for production secrets. Harden (signed sessions, DB, 2FA) before real use.
 
 ---
 

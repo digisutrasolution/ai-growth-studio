@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Settings2, Activity, Plus } from 'lucide-react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Settings2, Activity, Plus, Sparkles, Loader2, X } from 'lucide-react'
 import { GlassCard } from '@/components/ui/glass-card'
 import { StatCard } from '@/components/app/stat-card'
 import { buttonVariants } from '@/components/ui/button'
@@ -38,6 +38,22 @@ function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
 export function AgentsBoard() {
   const [active, setActive] = useState<Record<string, boolean>>(Object.fromEntries(agents.map((a) => [a.id, true])))
   const activeCount = Object.values(active).filter(Boolean).length
+  const [run, setRun] = useState<{ id: string; name: string; loading: boolean; text: string } | null>(null)
+
+  async function runAgent(id: string, name: string) {
+    setRun({ id, name, loading: true, text: '' })
+    try {
+      const res = await fetch('/api/agents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ agentId: id }),
+      })
+      const data = await res.json()
+      setRun({ id, name, loading: false, text: data.reply || 'No suggestions right now — try again.' })
+    } catch {
+      setRun({ id, name, loading: false, text: "Couldn't reach the model just now. Please try again." })
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -100,9 +116,17 @@ export function AgentsBoard() {
                       </div>
                     ))}
                   </div>
-                  <button className="grid size-9 place-items-center rounded-xl border border-line glass text-fg-muted transition-colors hover:text-fg" aria-label={`Configure ${agent.name}`}>
-                    <Settings2 className="size-[18px]" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => runAgent(agent.id, agent.name)}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-line glass px-3 py-2 text-xs font-medium text-fg transition-colors hover:bg-fg/5"
+                    >
+                      <Sparkles className="size-3.5 text-accent" /> Generate ideas
+                    </button>
+                    <button className="grid size-9 place-items-center rounded-xl border border-line glass text-fg-muted transition-colors hover:text-fg" aria-label={`Configure ${agent.name}`}>
+                      <Settings2 className="size-[18px]" />
+                    </button>
+                  </div>
                 </div>
               </GlassCard>
             )
@@ -128,6 +152,43 @@ export function AgentsBoard() {
           </ol>
         </GlassCard>
       </div>
+
+      {/* AI suggestions modal */}
+      <AnimatePresence>
+        {run && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setRun(null)}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 12, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 12, scale: 0.98 }}
+              onClick={(e) => e.stopPropagation()}
+              className="glass-strong w-full max-w-lg overflow-hidden rounded-3xl border border-line shadow-2xl"
+            >
+              <div className="flex items-center gap-3 border-b border-line px-5 py-4">
+                <span className="grid size-9 place-items-center rounded-xl bg-brand-gradient text-white"><Sparkles className="size-[18px]" /></span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold">{run.name}</p>
+                  <p className="text-xs text-fg-muted">AI-generated suggestions for this week</p>
+                </div>
+                <button onClick={() => setRun(null)} aria-label="Close" className="grid size-8 place-items-center rounded-lg text-fg-muted transition-colors hover:bg-fg/5 hover:text-fg"><X className="size-4" /></button>
+              </div>
+              <div className="max-h-[60vh] overflow-y-auto px-5 py-5">
+                {run.loading ? (
+                  <div className="flex items-center gap-2 text-sm text-fg-muted"><Loader2 className="size-4 animate-spin" /> Thinking…</div>
+                ) : (
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-fg">{run.text}</p>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { generate, type ChatMsg } from '@/lib/ai'
 
 // The Anthropic SDK needs the Node.js runtime (not edge).
 export const runtime = 'nodejs'
-
-const MODEL = process.env.CHAT_MODEL || 'claude-opus-4-8'
 
 const SYSTEM_PROMPT = `You are Nova, the AI growth assistant inside DigiSutra's AI Growth Studio — an AI-powered digital marketing platform.
 Help users grow their business across campaigns, SEO, content, lead generation, analytics, and automation.
@@ -30,31 +28,18 @@ export async function POST(req: Request) {
   const incoming = Array.isArray(body.messages) ? body.messages : []
   const lastUser = [...incoming].reverse().find((m) => m.role === 'user')?.text ?? ''
 
-  // Demo mode: no key configured → canned reply so the UI still works.
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return NextResponse.json({ reply: cannedReply(lastUser), demo: true })
-  }
-
-  // Map to the Anthropic message shape and ensure it starts with a user turn.
-  const mapped = incoming.map((m) => ({
-    role: m.role === 'ai' ? ('assistant' as const) : ('user' as const),
+  const mapped: ChatMsg[] = incoming.map((m) => ({
+    role: m.role === 'ai' ? 'assistant' : 'user',
     content: m.text,
   }))
-  while (mapped.length && mapped[0].role !== 'user') mapped.shift()
-  if (mapped.length === 0) mapped.push({ role: 'user', content: lastUser || 'Hello' })
 
   try {
-    const client = new Anthropic() // reads ANTHROPIC_API_KEY from env
-    const response = await client.messages.create({
-      model: MODEL,
-      max_tokens: 1024,
-      system: SYSTEM_PROMPT,
-      messages: mapped,
-    })
-    const reply = response.content.find((b) => b.type === 'text')?.text?.trim() || cannedReply(lastUser)
-    return NextResponse.json({ reply })
+    const reply = await generate(SYSTEM_PROMPT, mapped)
+    if (reply) return NextResponse.json({ reply })
+    // No provider configured → demo mode.
+    return NextResponse.json({ reply: cannedReply(lastUser), demo: true })
   } catch (err) {
-    console.error('[assistant] Claude request failed:', err)
+    console.error('[assistant] generation failed:', err)
     // Graceful degradation rather than a hard error in the chat UI.
     return NextResponse.json({ reply: cannedReply(lastUser), demo: true }, { status: 200 })
   }

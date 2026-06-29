@@ -9,24 +9,6 @@ interface Msg { role: 'user' | 'ai'; text: string }
 
 const SUGGESTIONS = ['Increase my website traffic', 'Write a launch email', 'Audit my SEO', 'Find my best audience']
 
-const CANNED: Record<string, string> = {
-  default:
-    "Here's what I'd do: 1) tighten your top 3 audiences, 2) shift budget to your best-performing channel, 3) ship 2 fresh creatives. Want me to set this up as an automation?",
-  traffic:
-    'Analyzing your website… I found 5 optimization opportunities: fix 12 broken links, target 38 high-intent keywords, speed up LCP by 1.4s, add 3 internal link clusters, and refresh 4 stale posts. Shall I queue these for the SEO agent?',
-  email:
-    "Drafted a 3-email launch sequence with subject lines, preview text, and CTAs — projected 41% open rate based on your list. Want me to schedule it?",
-  seo: 'Running a full audit… Technical score 82/100. Top wins: compress 56 images, add schema to 9 templates, and fix 3 redirect chains. I can apply the safe fixes automatically.',
-}
-
-function reply(input: string) {
-  const q = input.toLowerCase()
-  if (q.includes('traffic')) return CANNED.traffic
-  if (q.includes('email')) return CANNED.email
-  if (q.includes('seo') || q.includes('audit')) return CANNED.seo
-  return CANNED.default
-}
-
 export function AIAssistant() {
   const [open, setOpen] = useState(false)
   const [typing, setTyping] = useState(false)
@@ -41,16 +23,26 @@ export function AIAssistant() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
   }, [messages, typing])
 
-  function send(text: string) {
+  async function send(text: string) {
     const value = text.trim()
     if (!value || typing) return
-    setMessages((m) => [...m, { role: 'user', text: value }])
+    const next: Msg[] = [...messages, { role: 'user', text: value }]
+    setMessages(next)
     setInput('')
     setTyping(true)
-    window.setTimeout(() => {
+    try {
+      const res = await fetch('/api/assistant', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: next.slice(-12) }),
+      })
+      const data = await res.json()
+      setMessages((m) => [...m, { role: 'ai', text: data.reply || "I couldn't generate a response just now — please try again." }])
+    } catch {
+      setMessages((m) => [...m, { role: 'ai', text: "I couldn't reach the model just now. Please try again in a moment." }])
+    } finally {
       setTyping(false)
-      setMessages((m) => [...m, { role: 'ai', text: reply(value) }])
-    }, 1100)
+    }
   }
 
   return (

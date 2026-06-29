@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { SESSION_COOKIE, readSession } from '@/lib/auth'
 
-export async function middleware(req: NextRequest) {
+// Next.js 16 renamed Middleware → Proxy (same functionality). Gates /dashboard.
+export async function proxy(req: NextRequest) {
   const session = await readSession(req.cookies.get(SESSION_COOKIE)?.value)
   if (!session) {
     const url = new URL('/login', req.url)

@@ -78,7 +78,7 @@ export function Pricing() {
                   {!isEnterprise && !yearly && <p className="text-xs text-fg-muted">Billed monthly</p>}
 
                   <Link
-                    href="/dashboard"
+                    href={isEnterprise ? '/login' : '/signup'}
                     className={cn(buttonVariants({ variant: plan.featured ? 'primary' : 'glass' }), 'mt-6 w-full')}
                   >
                     {plan.cta}

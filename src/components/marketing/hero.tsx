@@ -48,7 +48,7 @@ export function Hero() {
           </motion.div>
 
           <motion.div variants={item} className="flex flex-wrap items-center gap-3 pt-2">
-            <Link href="/dashboard" className={cn(buttonVariants({ size: 'lg' }))}>
+            <Link href="/signup" className={cn(buttonVariants({ size: 'lg' }))}>
               Start free trial <ArrowRight className="size-4" />
             </Link>
             <Link href="#platform" className={cn(buttonVariants({ variant: 'glass', size: 'lg' }))}>

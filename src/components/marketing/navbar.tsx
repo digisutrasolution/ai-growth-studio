@@ -42,10 +42,10 @@ export function Navbar() {
 
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <Link href="/dashboard" className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'hidden sm:inline-flex')}>
+          <Link href="/login" className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }), 'hidden sm:inline-flex')}>
             Sign in
           </Link>
-          <Link href="/dashboard" className={cn(buttonVariants({ size: 'sm' }), 'hidden sm:inline-flex')}>
+          <Link href="/signup" className={cn(buttonVariants({ size: 'sm' }), 'hidden sm:inline-flex')}>
             Start free trial
           </Link>
           <button className="grid size-10 place-items-center rounded-xl border border-line glass md:hidden" aria-label="Toggle menu" onClick={() => setOpen((o) => !o)}>
@@ -62,7 +62,7 @@ export function Navbar() {
                 {l.label}
               </Link>
             ))}
-            <Link href="/dashboard" className={cn(buttonVariants({ size: 'sm' }), 'mt-2 w-full')}>Start free trial</Link>
+            <Link href="/signup" className={cn(buttonVariants({ size: 'sm' }), 'mt-2 w-full')}>Start free trial</Link>
           </div>
         </div>
       )}

@@ -18,7 +18,7 @@ export function CTA() {
             Join 38,000+ businesses scaling with AI Growth Studio. Launch your first autonomous agent in minutes.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Link href="/dashboard" className={cn(buttonVariants({ size: 'lg' }))}>
+            <Link href="/signup" className={cn(buttonVariants({ size: 'lg' }))}>
               Start free trial <ArrowRight className="size-4" />
             </Link>
             <Link href="#platform" className={cn(buttonVariants({ variant: 'glass', size: 'lg' }))}>Book AI demo</Link>

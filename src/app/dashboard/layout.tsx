@@ -1,10 +1,16 @@
 import type { Metadata } from 'next'
+import { cookies } from 'next/headers'
 import { Sidebar } from '@/components/app/sidebar'
 import { Topbar } from '@/components/app/topbar'
+import { SESSION_COOKIE, decodeSession } from '@/lib/auth'
 
 export const metadata: Metadata = { title: 'Dashboard' }
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const store = await cookies()
+  const session = decodeSession(store.get(SESSION_COOKIE)?.value)
+  const user = { name: session?.name ?? 'Account', email: session?.email ?? '' }
+
   return (
     <div className="flex min-h-dvh">
       {/* Desktop sidebar */}
@@ -13,7 +19,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar />
+        <Topbar user={user} />
         <main className="flex-1 p-4 sm:p-6">{children}</main>
       </div>
     </div>

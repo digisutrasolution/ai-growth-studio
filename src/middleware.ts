@@ -1,11 +1,9 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { SESSION_COOKIE, readSession } from '@/lib/auth'
 
-// Inlined to keep middleware edge-safe (no Node APIs pulled in).
-const SESSION_COOKIE = 'ags_session'
-
-export function middleware(req: NextRequest) {
-  const hasSession = Boolean(req.cookies.get(SESSION_COOKIE)?.value)
-  if (!hasSession) {
+export async function middleware(req: NextRequest) {
+  const session = await readSession(req.cookies.get(SESSION_COOKIE)?.value)
+  if (!session) {
     const url = new URL('/login', req.url)
     url.searchParams.set('next', req.nextUrl.pathname)
     return NextResponse.redirect(url)

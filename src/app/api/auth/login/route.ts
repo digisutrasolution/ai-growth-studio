@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { SESSION_COOKIE, SESSION_MAX_AGE, encodeSession, nameFromEmail } from '@/lib/auth'
+import { SESSION_COOKIE, SESSION_MAX_AGE, createSession, nameFromEmail } from '@/lib/auth'
 
 export async function POST(req: Request) {
   const { email, password } = await req.json().catch(() => ({}) as Record<string, string>)
@@ -9,8 +9,9 @@ export async function POST(req: Request) {
   }
 
   // DEMO: accept any credentials. Replace with DB lookup + password verify.
+  const token = await createSession({ email, name: nameFromEmail(email) })
   const res = NextResponse.json({ ok: true })
-  res.cookies.set(SESSION_COOKIE, encodeSession({ email, name: nameFromEmail(email) }), {
+  res.cookies.set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',

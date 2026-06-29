@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { SESSION_COOKIE, SESSION_MAX_AGE, encodeSession, nameFromEmail } from '@/lib/auth'
+import { SESSION_COOKIE, SESSION_MAX_AGE, createSession, nameFromEmail } from '@/lib/auth'
 
 export async function POST(req: Request) {
   const { name, email, password } = await req.json().catch(() => ({}) as Record<string, string>)
@@ -9,8 +9,9 @@ export async function POST(req: Request) {
   }
 
   // DEMO: create the session immediately. Replace with user creation in DB.
+  const token = await createSession({ email, name: name?.trim() || nameFromEmail(email) })
   const res = NextResponse.json({ ok: true })
-  res.cookies.set(SESSION_COOKIE, encodeSession({ email, name: name?.trim() || nameFromEmail(email) }), {
+  res.cookies.set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',

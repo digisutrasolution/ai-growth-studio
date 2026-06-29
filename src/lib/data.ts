@@ -246,6 +246,49 @@ export const campaignStatusStyles: Record<CampaignStatus, string> = {
   Completed: 'bg-fg/10 text-fg-muted',
 }
 
+/* ── Customers (for /dashboard/customers) ─────────────────────── */
+export type CustomerHealth = 'Healthy' | 'At risk' | 'Churning'
+
+export interface CustomerSegment { name: string; count: number; share: number; accent: string }
+
+export const customerSegments: CustomerSegment[] = [
+  { name: 'Champions', count: 1840, share: 22, accent: 'text-emerald-400' },
+  { name: 'Loyal', count: 3120, share: 37, accent: 'text-blue-400' },
+  { name: 'Promising', count: 1560, share: 18, accent: 'text-cyan-400' },
+  { name: 'At risk', count: 980, share: 12, accent: 'text-amber-400' },
+  { name: 'Dormant', count: 920, share: 11, accent: 'text-rose-400' },
+]
+
+export interface Customer {
+  id: string
+  name: string
+  email: string
+  initials: string
+  segment: string
+  ltv: number
+  orders: number
+  lastActive: string
+  health: CustomerHealth
+  activity: number[]
+}
+
+export const customerHealthStyles: Record<CustomerHealth, string> = {
+  Healthy: 'bg-emerald-400/15 text-emerald-400',
+  'At risk': 'bg-amber-400/15 text-amber-400',
+  Churning: 'bg-rose-400/15 text-rose-400',
+}
+
+export const customers: Customer[] = [
+  { id: 'u1', name: 'Ava Thompson', email: 'ava@northwind.co', initials: 'AT', segment: 'Champions', ltv: 8420, orders: 24, lastActive: '2h ago', health: 'Healthy', activity: [3, 5, 4, 6, 7, 6, 8] },
+  { id: 'u2', name: 'Marcus Lee', email: 'marcus@pixelforge.io', initials: 'ML', segment: 'Loyal', ltv: 4180, orders: 16, lastActive: '1d ago', health: 'Healthy', activity: [4, 4, 5, 3, 5, 4, 5] },
+  { id: 'u3', name: 'Priya Nair', email: 'priya@bloomgrid.com', initials: 'PN', segment: 'Champions', ltv: 12600, orders: 38, lastActive: '5h ago', health: 'Healthy', activity: [6, 7, 8, 7, 9, 8, 9] },
+  { id: 'u4', name: 'Diego Ramos', email: 'diego@vela.dev', initials: 'DR', segment: 'At risk', ltv: 2240, orders: 9, lastActive: '21d ago', health: 'At risk', activity: [5, 4, 3, 2, 2, 1, 1] },
+  { id: 'u5', name: 'Sophie Klein', email: 'sophie@arc.studio', initials: 'SK', segment: 'Promising', ltv: 3380, orders: 11, lastActive: '3d ago', health: 'Healthy', activity: [2, 3, 4, 4, 5, 5, 6] },
+  { id: 'u6', name: 'Tom Becker', email: 'tom@quantal.io', initials: 'TB', segment: 'Dormant', ltv: 1120, orders: 4, lastActive: '64d ago', health: 'Churning', activity: [4, 3, 2, 1, 1, 0, 0] },
+  { id: 'u7', name: 'Hana Sato', email: 'hana@lumen.ai', initials: 'HS', segment: 'Champions', ltv: 15800, orders: 47, lastActive: '1h ago', health: 'Healthy', activity: [7, 8, 8, 9, 9, 10, 10] },
+  { id: 'u8', name: 'Owen Walsh', email: 'owen@cedar.co', initials: 'OW', segment: 'Loyal', ltv: 5260, orders: 19, lastActive: '4d ago', health: 'At risk', activity: [6, 5, 5, 4, 4, 3, 3] },
+]
+
 /* ── Leads (pipeline kanban, for /dashboard/leads) ────────────── */
 export type LeadStage = 'New' | 'Contacted' | 'Qualified' | 'Proposal' | 'Won'
 export const leadStages: LeadStage[] = ['New', 'Contacted', 'Qualified', 'Proposal', 'Won']

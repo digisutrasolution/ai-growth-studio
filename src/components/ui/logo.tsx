@@ -1,26 +1,25 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 
-export function Logo({ className, href = '/' }: { className?: string; href?: string }) {
+/**
+ * Brand logo — uses the exact DigiSutra logo asset (public/digisutra-logo.jpg).
+ * The source art has a white background, so on dark surfaces it sits on a small
+ * white "chip" to stay crisp. `size` controls the rendered height.
+ */
+export function Logo({ className, href = '/', size = 'md' }: { className?: string; href?: string; size?: 'md' | 'lg' }) {
+  const box = size === 'lg' ? 'size-14' : 'size-10'
   return (
-    <Link href={href} className={cn('group inline-flex items-center gap-2.5', className)} aria-label="DigiSutra Solutions">
-      <span className="relative inline-grid size-9 place-items-center">
-        <svg viewBox="0 0 48 48" className="size-9 drop-shadow-[0_4px_12px_rgba(234,88,12,0.45)]" aria-hidden="true">
-          <defs>
-            <linearGradient id="ds-mark" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#FDBA74" />
-              <stop offset="0.45" stopColor="#F97316" />
-              <stop offset="1" stopColor="#EA580C" />
-            </linearGradient>
-          </defs>
-          {/* shield with downward chevron, echoing the DigiSutra mark */}
-          <path d="M8 6h32v20.5L24 42 8 26.5V6Z" fill="url(#ds-mark)" />
-          <path d="M8 6h32v20.5L24 42 8 26.5V6Z" fill="none" stroke="#ffffff" strokeOpacity="0.25" strokeWidth="1" />
-          <text x="24" y="24.5" textAnchor="middle" dominantBaseline="central" fontFamily="var(--font-sora), system-ui, sans-serif" fontWeight="700" fontSize="15" letterSpacing="-0.5" fill="#ffffff">DS</text>
-        </svg>
-      </span>
-      <span className="text-[15px] font-semibold tracking-tight">
-        <span className="text-[#F97316]">Digi</span>Sutra
+    <Link href={href} className={cn('inline-flex items-center', className)} aria-label="DigiSutra Solutions">
+      <span className="inline-flex items-center justify-center rounded-xl bg-white p-1 shadow-sm ring-1 ring-black/5">
+        <Image
+          src="/digisutra-logo.jpg"
+          alt="DigiSutra Solutions"
+          width={452}
+          height={452}
+          priority
+          className={cn(box, 'object-contain')}
+        />
       </span>
     </Link>
   )

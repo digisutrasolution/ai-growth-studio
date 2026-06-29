@@ -246,6 +246,78 @@ export const campaignStatusStyles: Record<CampaignStatus, string> = {
   Completed: 'bg-fg/10 text-fg-muted',
 }
 
+/* ── Automation (workflow builder, for /dashboard/automation) ──── */
+export type NodeKind = 'trigger' | 'condition' | 'action'
+
+export interface FlowNode { kind: NodeKind; label: string; detail: string; icon: LucideIcon }
+
+export interface Workflow {
+  id: string
+  name: string
+  status: 'Live' | 'Paused'
+  runs: number
+  successRate: number
+  nodes: FlowNode[]
+}
+
+export const workflows: Workflow[] = [
+  {
+    id: 'w1',
+    name: 'Hot lead fast-track',
+    status: 'Live',
+    runs: 4820,
+    successRate: 99.2,
+    nodes: [
+      { kind: 'trigger', label: 'New lead created', detail: 'Source: any', icon: UserPlus },
+      { kind: 'condition', label: 'Lead score > 80', detail: 'Predictive scoring', icon: Gauge },
+      { kind: 'action', label: 'Notify sales in Slack', detail: '#sales-hot channel', icon: Bot },
+      { kind: 'action', label: 'Start follow-up sequence', detail: '3-step email', icon: Mail },
+    ],
+  },
+  {
+    id: 'w2',
+    name: 'Win-back dormant customers',
+    status: 'Live',
+    runs: 1260,
+    successRate: 97.5,
+    nodes: [
+      { kind: 'trigger', label: 'No activity 60 days', detail: 'Segment: Dormant', icon: Users },
+      { kind: 'action', label: 'Send win-back offer', detail: '15% discount', icon: Mail },
+      { kind: 'action', label: 'Retarget on Meta', detail: 'Custom audience', icon: Share2 },
+    ],
+  },
+  {
+    id: 'w3',
+    name: 'Abandoned cart recovery',
+    status: 'Paused',
+    runs: 8910,
+    successRate: 94.8,
+    nodes: [
+      { kind: 'trigger', label: 'Cart abandoned', detail: 'After 1 hour', icon: MousePointerClick },
+      { kind: 'condition', label: 'Cart value > $50', detail: 'High intent', icon: Gauge },
+      { kind: 'action', label: 'Send reminder email', detail: 'Dynamic product block', icon: Mail },
+    ],
+  },
+  {
+    id: 'w4',
+    name: 'Content publish → promote',
+    status: 'Live',
+    runs: 540,
+    successRate: 100,
+    nodes: [
+      { kind: 'trigger', label: 'Blog post published', detail: 'CMS webhook', icon: PenLine },
+      { kind: 'action', label: 'Generate social posts', detail: 'Content AI Agent', icon: Sparkles },
+      { kind: 'action', label: 'Schedule across channels', detail: '4 networks', icon: Share2 },
+    ],
+  },
+]
+
+export const nodeKindStyles: Record<NodeKind, { ring: string; chip: string; label: string }> = {
+  trigger: { ring: 'border-violet-400/40', chip: 'bg-violet-400/15 text-violet-400', label: 'Trigger' },
+  condition: { ring: 'border-amber-400/40', chip: 'bg-amber-400/15 text-amber-400', label: 'Condition' },
+  action: { ring: 'border-cyan-400/40', chip: 'bg-cyan-400/15 text-cyan-400', label: 'Action' },
+}
+
 /* ── Customers (for /dashboard/customers) ─────────────────────── */
 export type CustomerHealth = 'Healthy' | 'At risk' | 'Churning'
 

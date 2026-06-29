@@ -151,6 +151,114 @@ export const heroStats = [
   { label: 'Avg. time saved', value: '21 hrs/wk' },
 ]
 
+/* ── Reports (for /dashboard/reports) ─────────────────────────── */
+export const reportTemplates: { name: string; description: string; icon: LucideIcon }[] = [
+  { name: 'Executive summary', description: 'High-level KPIs for leadership.', icon: BarChart3 },
+  { name: 'Channel performance', description: 'ROAS & spend by channel.', icon: TrendingUp },
+  { name: 'Campaign deep-dive', description: 'Per-campaign metrics & creatives.', icon: Megaphone },
+  { name: 'Customer cohorts', description: 'Retention & LTV by cohort.', icon: Users },
+  { name: 'Lead funnel', description: 'Conversion at every stage.', icon: UserPlus },
+  { name: 'Email engagement', description: 'Opens, clicks & deliverability.', icon: Mail },
+]
+
+export const scheduledReports = [
+  { name: 'Weekly executive summary', frequency: 'Every Mon, 8:00 AM', format: 'PDF', recipients: 5, status: 'Active' as const },
+  { name: 'Monthly channel report', frequency: '1st of month, 9:00 AM', format: 'PDF + CSV', recipients: 12, status: 'Active' as const },
+  { name: 'Daily spend alert', frequency: 'Daily, 7:00 AM', format: 'CSV', recipients: 3, status: 'Active' as const },
+  { name: 'Quarterly board deck', frequency: 'Quarterly', format: 'PDF', recipients: 8, status: 'Paused' as const },
+]
+
+export const recentReports = [
+  { name: 'Executive summary — Jun W4', date: 'Jun 28, 2026', format: 'PDF', size: '1.2 MB' },
+  { name: 'Channel performance — Jun', date: 'Jun 27, 2026', format: 'CSV', size: '480 KB' },
+  { name: 'Campaign deep-dive — Black Friday', date: 'Jun 24, 2026', format: 'PDF', size: '3.4 MB' },
+  { name: 'Customer cohorts — Q2', date: 'Jun 20, 2026', format: 'PDF', size: '2.1 MB' },
+]
+
+/* ── Billing (for /dashboard/billing) ─────────────────────────── */
+export const usageMeters = [
+  { label: 'Automated actions', used: 160000, total: 250000, unit: '' },
+  { label: 'AI agents', used: 5, total: 5, unit: '' },
+  { label: 'Team seats', used: 8, total: 10, unit: '' },
+  { label: 'Data storage', used: 42, total: 100, unit: 'GB' },
+]
+
+export const invoices = [
+  { id: 'INV-2026-006', date: 'Jun 1, 2026', amount: 129, status: 'Paid' as const },
+  { id: 'INV-2026-005', date: 'May 1, 2026', amount: 129, status: 'Paid' as const },
+  { id: 'INV-2026-004', date: 'Apr 1, 2026', amount: 129, status: 'Paid' as const },
+  { id: 'INV-2026-003', date: 'Mar 1, 2026', amount: 99, status: 'Paid' as const },
+]
+
+/* ── Settings: team & roles (for /dashboard/settings) ─────────── */
+export type TeamRole = 'Owner' | 'Admin' | 'Editor' | 'Viewer'
+
+export const teamMembers: { name: string; email: string; role: TeamRole; initials: string; status: 'Active' | 'Invited' }[] = [
+  { name: 'Steven', email: 'steven@aigrowth.studio', role: 'Owner', initials: 'ST', status: 'Active' },
+  { name: 'Priya Nair', email: 'priya@aigrowth.studio', role: 'Admin', initials: 'PN', status: 'Active' },
+  { name: 'Marcus Lee', email: 'marcus@aigrowth.studio', role: 'Editor', initials: 'ML', status: 'Active' },
+  { name: 'Hana Sato', email: 'hana@aigrowth.studio', role: 'Editor', initials: 'HS', status: 'Active' },
+  { name: 'Owen Walsh', email: 'owen@aigrowth.studio', role: 'Viewer', initials: 'OW', status: 'Invited' },
+]
+
+export const roleStyles: Record<TeamRole, string> = {
+  Owner: 'bg-violet-400/15 text-violet-400',
+  Admin: 'bg-blue-400/15 text-blue-400',
+  Editor: 'bg-cyan-400/15 text-cyan-400',
+  Viewer: 'bg-fg/10 text-fg-muted',
+}
+
+export const notificationPrefs = [
+  { label: 'Campaign performance alerts', detail: 'When ROAS drops below target', on: true },
+  { label: 'New lead notifications', detail: 'High-score leads in real time', on: true },
+  { label: 'Weekly summary email', detail: 'Every Monday morning', on: true },
+  { label: 'AI agent recommendations', detail: 'When agents suggest actions', on: false },
+  { label: 'Billing & usage warnings', detail: 'Approaching plan limits', on: true },
+]
+
+/* ── Admin panel (for /dashboard/admin) ───────────────────────── */
+export const adminStats = [
+  { label: 'Total users', value: '1,940', delta: '+124', trend: 'up' as const },
+  { label: 'MRR', value: '$182k', delta: '+9.4%', trend: 'up' as const },
+  { label: 'API calls (24h)', value: '4.1M', delta: '+6%', trend: 'up' as const },
+  { label: 'Uptime', value: '99.99%', delta: '0', trend: 'up' as const },
+]
+
+export const adminUsers: { name: string; email: string; plan: 'Starter' | 'Professional' | 'Enterprise'; status: 'Active' | 'Trialing' | 'Suspended'; mrr: string; initials: string }[] = [
+  { name: 'Northwind Co', email: 'admin@northwind.co', plan: 'Enterprise', status: 'Active', mrr: '$2,400', initials: 'NC' },
+  { name: 'Pixel Forge', email: 'ops@pixelforge.io', plan: 'Professional', status: 'Active', mrr: '$129', initials: 'PF' },
+  { name: 'Bloomgrid', email: 'team@bloomgrid.com', plan: 'Professional', status: 'Trialing', mrr: '$0', initials: 'BG' },
+  { name: 'Vela Labs', email: 'hi@vela.dev', plan: 'Starter', status: 'Active', mrr: '$39', initials: 'VL' },
+  { name: 'Quantal', email: 'billing@quantal.io', plan: 'Professional', status: 'Suspended', mrr: '$129', initials: 'QT' },
+]
+
+export const adminPlanStyles: Record<string, string> = {
+  Enterprise: 'bg-violet-400/15 text-violet-400',
+  Professional: 'bg-blue-400/15 text-blue-400',
+  Starter: 'bg-cyan-400/15 text-cyan-400',
+}
+
+export const adminStatusStyles: Record<string, string> = {
+  Active: 'bg-emerald-400/15 text-emerald-400',
+  Trialing: 'bg-amber-400/15 text-amber-400',
+  Suspended: 'bg-rose-400/15 text-rose-400',
+}
+
+export const systemLogs: { level: 'info' | 'warn' | 'error'; message: string; time: string }[] = [
+  { level: 'info', message: 'Nightly backup completed (4.2 GB)', time: '03:00' },
+  { level: 'warn', message: 'API rate limit hit for tenant Quantal', time: '02:41' },
+  { level: 'info', message: 'Deployment v2.18.0 succeeded', time: '01:12' },
+  { level: 'error', message: 'OpenAI timeout retried (recovered)', time: '00:58' },
+  { level: 'info', message: '2FA enabled for 14 new users', time: '00:20' },
+]
+
+export const securityChecks = [
+  { label: 'Two-factor authentication', value: '92% of users', ok: true },
+  { label: 'Encryption at rest', value: 'AES-256 · enabled', ok: true },
+  { label: 'Last security scan', value: '6h ago · 0 critical', ok: true },
+  { label: 'Failed logins (24h)', value: '37 · auto-blocked', ok: true },
+]
+
 /* ── App dashboard mock data ──────────────────────────────────── */
 export const appNav: { label: string; href: string; icon: LucideIcon }[] = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },

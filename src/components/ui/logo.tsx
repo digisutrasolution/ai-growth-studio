@@ -11,7 +11,7 @@ const H = 138
  * for dark bg) are swapped via CSS so there's no white box and no hydration flash.
  */
 export function Logo({ className, href = '/', size = 'md' }: { className?: string; href?: string; size?: 'md' | 'lg' }) {
-  const h = size === 'lg' ? 'h-11' : 'h-8'
+  const h = size === 'lg' ? 'h-14' : 'h-11'
   return (
     <Link href={href} className={cn('inline-flex items-center', className)} aria-label="DigiSutra Solutions">
       <Image src="/digisutra-logo-h.png" alt="" width={W} height={H} priority className={cn(h, 'w-auto dark:hidden')} />

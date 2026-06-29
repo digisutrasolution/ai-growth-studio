@@ -100,32 +100,62 @@ src/
 
 ---
 
-## 🚀 Deploy (Vercel)
+## 🖥️ Self-hosting (your own server)
 
-This is a standard Next.js app — Vercel needs zero extra config.
+The app builds to a minimal standalone server (`output: "standalone"`) and ships a Docker stack with PostgreSQL included.
 
-1. Push to GitHub (already at `digisutrasolution/ai-growth-studio`).
-2. On [vercel.com](https://vercel.com) → **Add New → Project** → import the repo. Vercel auto-detects Next.js.
-3. (Optional) add environment variables under **Settings → Environment Variables** to enable live AI:
-
-   | Variable | Purpose |
-   |---|---|
-   | `ANTHROPIC_API_KEY` | Live Claude responses for Nova + agents (recommended) |
-   | `OPENAI_API_KEY` | Alternative provider (used if no Anthropic key) |
-   | `CHAT_MODEL` | Optional model override (default `claude-opus-4-8`) |
-
-   Without these the AI features run in **demo mode** (canned responses) — the deploy still works.
-4. **Deploy.** Every push to `main` redeploys automatically.
-
-CLI alternative:
+### Option A — Docker Compose (recommended)
 
 ```bash
-npm i -g vercel
-vercel        # preview deploy
-vercel --prod # production
+git clone https://github.com/digisutrasolution/ai-growth-studio.git
+cd ai-growth-studio
+cp .env.example .env          # set AUTH_SECRET, POSTGRES_PASSWORD, ANTHROPIC_API_KEY
+docker compose up -d --build  # app on :3000, Postgres on :5432
 ```
 
-> Auth uses an unsigned demo cookie and data is mocked — fine for a live demo, not for production secrets. Harden (signed sessions, DB, 2FA) before real use.
+Update later with `git pull && docker compose up -d --build`.
+
+| Variable | Purpose |
+|---|---|
+| `AUTH_SECRET` | Signs session JWTs — **set a strong value** (`openssl rand -base64 32`) |
+| `POSTGRES_PASSWORD` | Password for the bundled database |
+| `ANTHROPIC_API_KEY` | Live Claude responses for Nova + agents (else demo mode) |
+| `OPENAI_API_KEY` | Alternative AI provider (used if no Anthropic key) |
+| `CHAT_MODEL` | Optional model override (default `claude-opus-4-8`) |
+
+### Option B — bare metal (Node + PM2)
+
+```bash
+npm ci && npm run build
+node .next/standalone/server.js        # serves on PORT (default 3000), HOSTNAME=0.0.0.0
+# or keep it alive: pm2 start "node .next/standalone/server.js" --name ai-growth-studio
+```
+
+The standalone server needs `public/` and `.next/static/` beside it — `npm run start` handles paths automatically if you prefer it.
+
+### Reverse proxy + TLS (nginx)
+
+```nginx
+server {
+  server_name yourdomain.com;
+  location / {
+    proxy_pass http://127.0.0.1:3000;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+  }
+}
+# then: sudo certbot --nginx -d yourdomain.com   (free Let's Encrypt TLS)
+```
+
+> Sessions are signed JWTs (set `AUTH_SECRET`). Credentials are still accepted without a user store — wire the bundled Postgres (hashed passwords) before real production use.
+
+### Alternative — Vercel (managed)
+
+Push to GitHub → import the repo on [vercel.com](https://vercel.com) (zero config) → add the same env vars under **Settings → Environment Variables**.
 
 ---
 

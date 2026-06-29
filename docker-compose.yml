@@ -1,0 +1,43 @@
+# Self-host stack: the Next.js app + a PostgreSQL database (ready for real auth).
+# Usage:
+#   cp .env.example .env   # set AUTH_SECRET, ANTHROPIC_API_KEY, POSTGRES_PASSWORD
+#   docker compose up -d --build
+# App: http://<server-ip>:3000   (put nginx/Caddy in front for TLS — see README)
+
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      # Session signing — set a strong value in .env (openssl rand -base64 32)
+      AUTH_SECRET: ${AUTH_SECRET:-change-me-in-production}
+      # AI (optional — without a key Nova runs in demo mode)
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      CHAT_MODEL: ${CHAT_MODEL:-claude-opus-4-8}
+      # Database (used once the user store is wired)
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/aigrowth
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: aigrowth
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d aigrowth"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:

@@ -123,15 +123,48 @@ Update later with `git pull && docker compose up -d --build`.
 | `OPENAI_API_KEY` | Alternative AI provider (used if no Anthropic key) |
 | `CHAT_MODEL` | Optional model override (default `claude-opus-4-8`) |
 
-### Option B — bare metal (Node + PM2)
+### Option B — bare metal (Node + PM2), proxied by Apache or nginx
+
+Next.js is a Node app (SSR + API routes), so the web server **reverse-proxies** to a
+running Node process — it does **not** serve the folder statically.
 
 ```bash
+# 1. Node 20.9+/22 must be installed (nvm or NodeSource)
 npm ci && npm run build
-node .next/standalone/server.js        # serves on PORT (default 3000), HOSTNAME=0.0.0.0
-# or keep it alive: pm2 start "node .next/standalone/server.js" --name ai-growth-studio
+cp .env.example .env.local     # set AUTH_SECRET, ANTHROPIC_API_KEY, ...
+
+# 2. Run on a local port, kept alive by PM2
+PORT=3000 pm2 start npm --name digisutra-studio -- start
+pm2 save && pm2 startup        # restart on reboot
 ```
 
-The standalone server needs `public/` and `.next/static/` beside it — `npm run start` handles paths automatically if you prefer it.
+Each app on a multi-app server gets its **own port** (3000, 3001, …) and its own vhost.
+
+#### Apache reverse proxy (root domain)
+
+```bash
+sudo a2enmod proxy proxy_http headers   # Debian/Ubuntu (httpd: ensure mod_proxy is loaded)
+```
+
+```apache
+<VirtualHost *:80>
+    ServerName digisutra.studio
+    ServerAlias www.digisutra.studio
+
+    ProxyPreserveHost On
+    ProxyPass        / http://127.0.0.1:3000/
+    ProxyPassReverse / http://127.0.0.1:3000/
+    RequestHeader set X-Forwarded-Proto "http"
+
+    ErrorLog  ${APACHE_LOG_DIR}/digisutra_error.log
+    CustomLog ${APACHE_LOG_DIR}/digisutra_access.log combined
+</VirtualHost>
+```
+
+```bash
+sudo apachectl configtest && sudo systemctl reload apache2   # (or: httpd)
+sudo certbot --apache -d digisutra.studio -d www.digisutra.studio   # free TLS
+```
 
 ### Reverse proxy + TLS (nginx)
 

@@ -14,3 +14,17 @@ model User {
   password  String
   createdAt DateTime @default(now())
 }
+
+model Order {
+  id        String   @id @default(cuid())
+  reference String   @unique
+  email     String
+  plan      String
+  cycle     String
+  currency  String
+  amount    Int // smallest unit (cents / paise)
+  method    String
+  status    String   @default("pending") // pending | paid | failed
+  provider  String? // gateway order/invoice id
+  createdAt DateTime @default(now())
+}

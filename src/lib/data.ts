@@ -140,6 +140,14 @@ export const plans: Plan[] = [
   },
 ]
 
+// INR pricing (whole rupees) per plan, keyed by plan name. USD prices live on
+// each plan (monthly/yearly). Used by the multi-currency billing checkout.
+export const planPriceInr: Record<string, { monthly: number; yearly: number }> = {
+  Starter: { monthly: 2999, yearly: 2399 },
+  Professional: { monthly: 9999, yearly: 7999 },
+  Enterprise: { monthly: 0, yearly: 0 },
+}
+
 /* ── Trust / integration logos (text marquee) ─────────────────── */
 export const integrations = ['Salesforce', 'HubSpot', 'Shopify', 'Stripe', 'Meta Ads', 'Google Ads', 'Mailchimp', 'Slack', 'Zapier', 'Notion', 'Segment', 'Klaviyo']
 

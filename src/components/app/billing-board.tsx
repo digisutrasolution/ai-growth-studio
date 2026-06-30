@@ -3,16 +3,20 @@
 import { CreditCard, Download, Check, Sparkles } from 'lucide-react'
 import { GlassCard } from '@/components/ui/glass-card'
 import { buttonVariants } from '@/components/ui/button'
+import { CheckoutPanel } from '@/components/app/checkout-panel'
 import { usageMeters, invoices } from '@/lib/data'
 import { cn, formatCurrency, formatCompact } from '@/lib/utils'
+import type { MethodId } from '@/lib/payments'
 
-export function BillingBoard() {
+export function BillingBoard({ configured }: { configured: Partial<Record<MethodId, boolean>> }) {
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold">Billing</h2>
         <p className="text-sm text-fg-muted">Manage your plan, usage and invoices.</p>
       </div>
+
+      <CheckoutPanel configured={configured} />
 
       <div className="grid gap-4 lg:grid-cols-3">
         {/* Current plan */}

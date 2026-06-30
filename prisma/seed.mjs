@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
-const email = 'demo@digisutra.studio'
+const email = 'demo@digisutra.solutions'
 const password = await bcrypt.hash('demo-access', 10)
 
 const user = await prisma.user.upsert({

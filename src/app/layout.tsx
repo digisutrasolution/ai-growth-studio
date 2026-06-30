@@ -17,7 +17,7 @@ const inter = Inter({
   display: 'swap',
 })
 
-const siteUrl = 'https://aigrowth.studio'
+const siteUrl = 'https://digisutra.solutions'
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

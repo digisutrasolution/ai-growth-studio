@@ -194,11 +194,11 @@ export const invoices = [
 export type TeamRole = 'Owner' | 'Admin' | 'Editor' | 'Viewer'
 
 export const teamMembers: { name: string; email: string; role: TeamRole; initials: string; status: 'Active' | 'Invited' }[] = [
-  { name: 'Steven', email: 'steven@aigrowth.studio', role: 'Owner', initials: 'ST', status: 'Active' },
-  { name: 'Priya Nair', email: 'priya@aigrowth.studio', role: 'Admin', initials: 'PN', status: 'Active' },
-  { name: 'Marcus Lee', email: 'marcus@aigrowth.studio', role: 'Editor', initials: 'ML', status: 'Active' },
-  { name: 'Hana Sato', email: 'hana@aigrowth.studio', role: 'Editor', initials: 'HS', status: 'Active' },
-  { name: 'Owen Walsh', email: 'owen@aigrowth.studio', role: 'Viewer', initials: 'OW', status: 'Invited' },
+  { name: 'Steven', email: 'steven@digisutra.solutions', role: 'Owner', initials: 'ST', status: 'Active' },
+  { name: 'Priya Nair', email: 'priya@digisutra.solutions', role: 'Admin', initials: 'PN', status: 'Active' },
+  { name: 'Marcus Lee', email: 'marcus@digisutra.solutions', role: 'Editor', initials: 'ML', status: 'Active' },
+  { name: 'Hana Sato', email: 'hana@digisutra.solutions', role: 'Editor', initials: 'HS', status: 'Active' },
+  { name: 'Owen Walsh', email: 'owen@digisutra.solutions', role: 'Viewer', initials: 'OW', status: 'Invited' },
 ]
 
 export const roleStyles: Record<TeamRole, string> = {

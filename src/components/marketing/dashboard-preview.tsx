@@ -14,7 +14,7 @@ export function DashboardPreview() {
         <span className="size-2.5 rounded-full bg-rose-400/80" />
         <span className="size-2.5 rounded-full bg-amber-400/80" />
         <span className="size-2.5 rounded-full bg-emerald-400/80" />
-        <span className="ml-2 text-xs text-fg-muted">app.aigrowth.studio/dashboard</span>
+        <span className="ml-2 text-xs text-fg-muted">app.digisutra.solutions/dashboard</span>
       </div>
 
       {/* stat tiles */}

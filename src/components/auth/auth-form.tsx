@@ -108,7 +108,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
       <button
         type="button"
         disabled={loading !== null}
-        onClick={() => authenticate({ email: 'demo@digisutra.studio', password: 'demo-access' }, 'demo')}
+        onClick={() => authenticate({ email: 'demo@digisutra.solutions', password: 'demo-access' }, 'demo')}
         className={cn(buttonVariants({ variant: 'glass', size: 'lg' }), 'w-full')}
       >
         {loading === 'demo' ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4 text-accent" />}

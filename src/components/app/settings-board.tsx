@@ -33,7 +33,7 @@ export function SettingsBoard() {
           {[
             { label: 'Organization name', value: 'AI Growth Studio' },
             { label: 'Owner', value: 'Steven' },
-            { label: 'Billing email', value: 'billing@aigrowth.studio' },
+            { label: 'Billing email', value: 'billing@digisutra.solutions' },
             { label: 'Timezone', value: 'GMT+05:30 · IST' },
           ].map((f) => (
             <label key={f.label} className="block">

@@ -1,0 +1,67 @@
+# Optional overlay — enable REAL ACCOUNTS (PostgreSQL + bcrypt-hashed passwords).
+# Use it ALONGSIDE compose.server.yml. Without it, the app stays in demo mode
+# (any login works) — your live deploy is unaffected until you opt in.
+#
+#   1) add a password to .env:   AIGROWTH_DB_PASSWORD=$(openssl rand -base64 24)
+#   2) start the app + its own Postgres:
+#        docker compose -f compose.server.yml -f compose.server.db.yml up -d --build
+#   3) one-off — create the table + seed the demo account:
+#        docker compose -f compose.server.yml -f compose.server.db.yml \
+#          --profile tools run --rm aigrowth-migrate
+#
+# After this, signup creates real accounts and login verifies passwords
+# (bad credentials -> 401). The demo button still works (seeded account).
+
+services:
+  aigrowth:
+    environment:
+      DATABASE_URL: postgresql://aigrowth:${AIGROWTH_DB_PASSWORD:?set AIGROWTH_DB_PASSWORD in .env}@aigrowth-db:5432/aigrowth
+    depends_on:
+      aigrowth-db:
+        condition: service_healthy
+    networks:
+      - proxy
+      - default
+
+  aigrowth-db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: aigrowth
+      POSTGRES_PASSWORD: ${AIGROWTH_DB_PASSWORD:?set AIGROWTH_DB_PASSWORD in .env}
+      POSTGRES_DB: aigrowth
+    volumes:
+      - aigrowth_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aigrowth -d aigrowth"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - default
+
+  # One-off schema push + demo seed. Profile-gated so it never runs on `up`;
+  # invoke explicitly with `--profile tools run --rm aigrowth-migrate`.
+  aigrowth-migrate:
+    profiles: ["tools"]
+    build:
+      context: .
+      target: builder
+    command: sh -c "npx prisma db push --skip-generate && node prisma/seed.mjs"
+    environment:
+      DATABASE_URL: postgresql://aigrowth:${AIGROWTH_DB_PASSWORD:?}@aigrowth-db:5432/aigrowth
+    depends_on:
+      aigrowth-db:
+        condition: service_healthy
+    networks:
+      - default
+    restart: "no"
+
+volumes:
+  aigrowth_pgdata:
+
+networks:
+  default:
+  proxy:
+    external: true
+    name: ${PROXY_NETWORK:-docker-setup_default}

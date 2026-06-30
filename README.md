@@ -224,8 +224,19 @@ digisutra.solutions {
 docker exec <caddy-container> caddy reload --config /etc/caddy/Caddyfile
 ```
 
-Point the domain's DNS at the server (Caddy auto-issues TLS). Add `ANTHROPIC_API_KEY`
-and `DATABASE_URL` to `.env` later to enable live AI + real accounts.
+Point the domain's DNS at the server (Caddy auto-issues TLS).
+
+**Go live later (no downtime):**
+- **Live AI** — add `ANTHROPIC_API_KEY=sk-ant-...` to `.env`, then
+  `docker compose -f compose.server.yml up -d`.
+- **Real accounts** — use the `compose.server.db.yml` overlay (adds a dedicated
+  Postgres for the app):
+  ```bash
+  echo "AIGROWTH_DB_PASSWORD=$(openssl rand -base64 24)" >> .env
+  docker compose -f compose.server.yml -f compose.server.db.yml up -d --build
+  docker compose -f compose.server.yml -f compose.server.db.yml \
+    --profile tools run --rm aigrowth-migrate     # one-off: create table + seed demo user
+  ```
 
 ### Alternative — Vercel (managed)
 

@@ -8,6 +8,8 @@
 # uses canned replies). To go live later, add ANTHROPIC_API_KEY and a
 # DATABASE_URL in .env (see README → "Enable real accounts").
 
+name: digisutra
+
 services:
   aigrowth:
     build: .

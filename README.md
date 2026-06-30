@@ -199,6 +199,34 @@ npm run db:seed    # optional: create the demo account (demo@digisutra.studio / 
 With `DATABASE_URL` set, **signup creates accounts** and **login verifies passwords**
 (bad credentials → 401). Sessions are signed JWTs either way — set a strong `AUTH_SECRET`.
 
+### Deploy alongside an existing proxy (n8n / Caddy stack)
+
+If the server already runs a reverse proxy (e.g. Caddy fronting n8n), use
+`compose.server.yml` — the app joins the proxy's network so it can be reached as
+`aigrowth:3000`, no host ports published.
+
+```bash
+git clone https://github.com/digisutrasolution/ai-growth-studio.git
+cd ai-growth-studio
+echo "AUTH_SECRET=$(openssl rand -base64 32)" > .env      # PROXY_NETWORK defaults to docker-setup_default
+docker compose -f compose.server.yml up -d --build
+```
+
+Then add a site block to the proxy's Caddyfile and reload:
+
+```caddy
+digisutra.solutions {
+    reverse_proxy aigrowth:3000
+}
+```
+
+```bash
+docker exec <caddy-container> caddy reload --config /etc/caddy/Caddyfile
+```
+
+Point the domain's DNS at the server (Caddy auto-issues TLS). Add `ANTHROPIC_API_KEY`
+and `DATABASE_URL` to `.env` later to enable live AI + real accounts.
+
 ### Alternative — Vercel (managed)
 
 Push to GitHub → import the repo on [vercel.com](https://vercel.com) (zero config) → add the same env vars under **Settings → Environment Variables**.

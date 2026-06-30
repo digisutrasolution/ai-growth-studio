@@ -1,0 +1,29 @@
+# Deploy alongside an existing reverse proxy (e.g. an n8n + Caddy stack).
+# The app joins the proxy's Docker network so Caddy can reach it as aigrowth:3000.
+#
+#   PROXY_NETWORK   external Docker network the proxy is on
+#                   (default: docker-setup_default — the n8n/Caddy stack)
+#
+# Demo mode by default: no DATABASE_URL (any login works) and no AI key (Nova
+# uses canned replies). To go live later, add ANTHROPIC_API_KEY and a
+# DATABASE_URL in .env (see README → "Enable real accounts").
+
+services:
+  aigrowth:
+    build: .
+    container_name: aigrowth
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      AUTH_SECRET: ${AUTH_SECRET:?set AUTH_SECRET in .env}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      CHAT_MODEL: ${CHAT_MODEL:-claude-opus-4-8}
+      DATABASE_URL: ${DATABASE_URL:-}
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
+    name: ${PROXY_NETWORK:-docker-setup_default}

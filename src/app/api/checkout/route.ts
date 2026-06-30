@@ -4,7 +4,7 @@ import { SESSION_COOKIE, readSession } from '@/lib/auth'
 import { getPrisma } from '@/lib/db'
 import {
   type Currency, type Cycle, type MethodId,
-  isMethodConfigured, planPrice, amountMinor, bankDetails, newReference, appUrl,
+  isMethodConfigured, planPrice, amountMinor, bankAccounts, newReference, appUrl,
 } from '@/lib/payments'
 
 export const runtime = 'nodejs'
@@ -33,7 +33,7 @@ export async function POST(req: Request) {
   try {
     // Bank transfer — no gateway, always available.
     if (method === 'bank_transfer') {
-      return NextResponse.json({ type: 'bank', reference, currency, amount: major, details: bankDetails(currency) })
+      return NextResponse.json({ type: 'bank', reference, currency, amount: major, accounts: bankAccounts(currency) })
     }
 
     // Gateway not configured → demo response (wire keys to enable).

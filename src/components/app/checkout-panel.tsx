@@ -2,17 +2,17 @@
 
 import { useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Landmark, Wallet, Bitcoin, Banknote, Check, Loader2, X, Copy } from 'lucide-react'
+import { Landmark, Wallet, Bitcoin, Banknote, Check, Loader2, X, Copy, AlertTriangle } from 'lucide-react'
 import { GlassCard } from '@/components/ui/glass-card'
 import { buttonVariants } from '@/components/ui/button'
 import { plans } from '@/lib/data'
-import { methodsForCurrency, formatPrice, type Currency, type Cycle, type MethodId } from '@/lib/payments'
+import { methodsForCurrency, formatPrice, currencySymbol, type Currency, type Cycle, type MethodId, type BankAccount } from '@/lib/payments'
 import { cn } from '@/lib/utils'
 
 const ICONS = { Landmark, Wallet, Bitcoin, Banknote }
 
 type Result =
-  | { type: 'bank'; reference: string; currency: string; amount: number; details: { label: string; value: string }[] }
+  | { type: 'bank'; reference: string; currency: string; amount: number; accounts: BankAccount[] }
   | { type: 'demo'; message: string }
   | { type: 'contact'; message: string }
   | { type: 'error'; message: string }
@@ -125,19 +125,31 @@ export function CheckoutPanel({ configured }: { configured: Partial<Record<Metho
                 </p>
                 <button onClick={() => setResult(null)} aria-label="Close" className="grid size-8 place-items-center rounded-lg text-fg-muted hover:bg-fg/5 hover:text-fg"><X className="size-4" /></button>
               </div>
-              <div className="px-5 py-5">
+              <div className="max-h-[70vh] overflow-y-auto px-5 py-5">
                 {result.type === 'bank' ? (
-                  <div className="space-y-3">
-                    <p className="text-sm text-fg-muted">Transfer <span className="font-semibold text-fg">{currency} {result.amount.toLocaleString()}</span> and include the reference below. We&apos;ll activate your plan once received.</p>
-                    <div className="rounded-xl border border-line bg-surface/40 p-3 text-sm">
-                      {result.details.map((d) => (
-                        <div key={d.label} className="flex items-center justify-between py-1">
-                          <span className="text-fg-muted">{d.label}</span>
-                          <span className="font-medium tabular-nums">{d.value}</span>
+                  <div className="space-y-4">
+                    <p className="text-sm text-fg-muted">
+                      Transfer <span className="font-semibold text-fg">{currencySymbol[result.currency as Currency]}{result.amount.toLocaleString()}</span> using any account below, and include the reference so we can match your payment and activate your plan.
+                    </p>
+                    <CopyRow label="Payment reference" value={result.reference} />
+                    {result.accounts.map((acc) => (
+                      <div key={acc.title} className="rounded-2xl border border-line bg-surface/40 p-3">
+                        <div className="mb-2 flex items-center justify-between gap-2">
+                          <p className="text-sm font-semibold">{acc.title}</p>
+                          <span className="shrink-0 rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-medium text-brand">{acc.region}</span>
                         </div>
-                      ))}
-                    </div>
-                    <CopyRow label="Reference" value={result.reference} />
+                        {acc.note && (
+                          <div className="mb-2 flex items-start gap-2 rounded-lg border border-amber-400/30 bg-amber-400/10 px-2.5 py-1.5 text-[11px] text-amber-400">
+                            <AlertTriangle className="mt-0.5 size-3.5 shrink-0" /> {acc.note}
+                          </div>
+                        )}
+                        <div className="space-y-1.5">
+                          {acc.fields.map((f) => (
+                            <CopyRow key={f.label} label={f.label} value={f.value} />
+                          ))}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 ) : (
                   <p className="text-sm text-fg-muted">{result.message}</p>

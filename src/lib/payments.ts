@@ -59,23 +59,59 @@ export function formatPrice(planName: string, currency: Currency, cycle: Cycle):
   return `${currencySymbol[currency]}${v.toLocaleString(currency === 'INR' ? 'en-IN' : 'en-US')}`
 }
 
-/** Manual bank details, sourced from env with safe placeholders. */
-export function bankDetails(currency: Currency): { label: string; value: string }[] {
+export interface BankField { label: string; value: string }
+export interface BankAccount { title: string; region: string; note?: string; fields: BankField[] }
+
+const env = (key: string, fallback = '—') => process.env[key] || fallback
+
+/**
+ * Manual bank-transfer accounts per currency, sourced from env so the real
+ * account numbers stay out of the (public) repo. USD shows a US-domestic ACH
+ * option plus an international SWIFT/IBAN wire; INR shows the Indian account.
+ */
+export function bankAccounts(currency: Currency): BankAccount[] {
   if (currency === 'INR') {
     return [
-      { label: 'Account name', value: process.env.BANK_INR_NAME || 'DigiSutra Solutions' },
-      { label: 'Account no.', value: process.env.BANK_INR_ACCOUNT || 'XXXXXXXXXXXX' },
-      { label: 'IFSC', value: process.env.BANK_INR_IFSC || 'XXXX0000000' },
-      { label: 'Bank', value: process.env.BANK_INR_BANK || 'Your Bank, India' },
-      { label: 'UPI', value: process.env.BANK_INR_UPI || 'digisutra@upi' },
+      {
+        title: 'India — bank transfer',
+        region: 'India · INR',
+        fields: [
+          { label: 'Account name', value: env('BANK_IN_NAME', 'DigiSutra Solutions') },
+          { label: 'Account no.', value: env('BANK_IN_ACCOUNT') },
+          { label: 'IFSC', value: env('BANK_IN_IFSC') },
+          { label: 'SWIFT', value: env('BANK_IN_SWIFT') },
+          { label: 'Bank', value: env('BANK_IN_BANK', 'Axis Bank') },
+          { label: 'Branch', value: env('BANK_IN_BRANCH') },
+          { label: 'Account type', value: env('BANK_IN_TYPE', 'Current') },
+        ],
+      },
     ]
   }
   return [
-    { label: 'Beneficiary', value: process.env.BANK_USD_NAME || 'DigiSutra Solutions' },
-    { label: 'Account no.', value: process.env.BANK_USD_ACCOUNT || 'XXXXXXXXXX' },
-    { label: 'SWIFT/BIC', value: process.env.BANK_USD_SWIFT || 'XXXXXXXX' },
-    { label: 'Bank', value: process.env.BANK_USD_BANK || 'Your Bank' },
-    { label: 'Routing', value: process.env.BANK_USD_ROUTING || 'XXXXXXXXX' },
+    {
+      title: 'USA — ACH transfer',
+      region: 'United States · USD',
+      fields: [
+        { label: 'Account name', value: env('BANK_US_NAME', 'DigiSutra Solutions') },
+        { label: 'Account no.', value: env('BANK_US_ACCOUNT') },
+        { label: 'ACH routing', value: env('BANK_US_ROUTING') },
+        { label: 'Bank', value: env('BANK_US_BANK') },
+        { label: 'Bank address', value: env('BANK_US_ADDRESS') },
+        { label: 'Currency', value: 'USD' },
+      ],
+    },
+    {
+      title: 'International — SWIFT / IBAN wire',
+      region: 'All countries',
+      note: env('BANK_INTL_NOTE', 'When initiating the transfer, add the remark: DO NOT CONVERT TO GBP'),
+      fields: [
+        { label: 'Account name', value: env('BANK_INTL_NAME', 'DigiSutra Solutions') },
+        { label: 'IBAN (account no.)', value: env('BANK_INTL_IBAN') },
+        { label: 'BIC / SWIFT', value: env('BANK_INTL_SWIFT') },
+        { label: 'Bank', value: env('BANK_INTL_BANK') },
+        { label: 'Bank address', value: env('BANK_INTL_ADDRESS') },
+      ],
+    },
   ]
 }
 

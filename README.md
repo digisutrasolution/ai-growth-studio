@@ -184,7 +184,20 @@ server {
 # then: sudo certbot --nginx -d yourdomain.com   (free Let's Encrypt TLS)
 ```
 
-> Sessions are signed JWTs (set `AUTH_SECRET`). Credentials are still accepted without a user store — wire the bundled Postgres (hashed passwords) before real production use.
+### Enable real accounts (PostgreSQL)
+
+By default the app runs in **demo mode** (any credentials log in). Point `DATABASE_URL`
+at Postgres to switch to a real user store with **bcrypt-hashed passwords**:
+
+```bash
+# DATABASE_URL is already wired to the bundled db in docker-compose;
+# for bare metal, set it in .env.local, then:
+npm run db:push    # create the User table from the Prisma schema
+npm run db:seed    # optional: create the demo account (demo@digisutra.studio / demo-access)
+```
+
+With `DATABASE_URL` set, **signup creates accounts** and **login verifies passwords**
+(bad credentials → 401). Sessions are signed JWTs either way — set a strong `AUTH_SECRET`.
 
 ### Alternative — Vercel (managed)
 

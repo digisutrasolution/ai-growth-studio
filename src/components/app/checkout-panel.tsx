@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Landmark, Wallet, Bitcoin, Banknote, Check, Loader2, X, Copy, AlertTriangle } from 'lucide-react'
 import { GlassCard } from '@/components/ui/glass-card'
@@ -25,6 +25,15 @@ export function CheckoutPanel({ configured }: { configured: Partial<Record<Metho
   const [method, setMethod] = useState<MethodId>('paypal')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<Result | null>(null)
+
+  // Auto-select currency by the visitor's country (India → INR) unless they pick one.
+  const pickedRef = useRef(false)
+  useEffect(() => {
+    fetch('/api/geo')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d?.currency === 'INR' && !pickedRef.current) setCurrency('INR') })
+      .catch(() => {})
+  }, [])
 
   // keep the selected method valid for the chosen currency
   const activeMethod = methods.some((m) => m.id === method) ? method : methods[0].id
@@ -60,7 +69,7 @@ export function CheckoutPanel({ configured }: { configured: Partial<Record<Metho
         <h3 className="font-semibold">Upgrade / change plan</h3>
         {/* currency + cycle toggles */}
         <div className="flex items-center gap-2">
-          <Segmented value={currency} onChange={(v) => setCurrency(v as Currency)} options={[{ v: 'USD', l: '$ USD' }, { v: 'INR', l: '₹ INR' }]} />
+          <Segmented value={currency} onChange={(v) => { pickedRef.current = true; setCurrency(v as Currency) }} options={[{ v: 'USD', l: '$ USD' }, { v: 'INR', l: '₹ INR' }]} />
           <Segmented value={cycle} onChange={(v) => setCycle(v as Cycle)} options={[{ v: 'monthly', l: 'Monthly' }, { v: 'yearly', l: 'Yearly' }]} />
         </div>
       </div>

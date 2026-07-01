@@ -153,6 +153,14 @@ export function BillingBoard({
       <GlassCard className="overflow-hidden p-0">
         <div className="flex items-center justify-between px-5 py-4">
           <h3 className="font-semibold">Payment history</h3>
+          {orders.length > 0 && (
+            <a
+              href="/api/orders/export"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface/40 px-3 py-1.5 text-xs font-medium text-fg-muted transition-colors hover:bg-fg/5 hover:text-fg"
+            >
+              <Download className="size-3.5" /> Export CSV
+            </a>
+          )}
         </div>
         {orders.length === 0 ? (
           <div className="flex flex-col items-center gap-2 px-5 py-12 text-center">

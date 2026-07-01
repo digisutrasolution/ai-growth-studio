@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Sparkles, Check, Loader2, AlertTriangle, Receipt } from 'lucide-react'
+import { Sparkles, Check, Loader2, AlertTriangle, Receipt, Download } from 'lucide-react'
 import { GlassCard } from '@/components/ui/glass-card'
 import { CheckoutPanel } from '@/components/app/checkout-panel'
 import { cn } from '@/lib/utils'
@@ -170,6 +170,7 @@ export function BillingBoard({
                   <th className="px-5 py-3 font-medium">Date</th>
                   <th className="px-5 py-3 text-right font-medium">Amount</th>
                   <th className="px-5 py-3 font-medium">Status</th>
+                  <th className="px-5 py-3 text-right font-medium">Receipt</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
@@ -187,6 +188,17 @@ export function BillingBoard({
                         o.status === 'pending' && 'bg-amber-400/15 text-amber-400',
                         o.status === 'failed' && 'bg-red-400/15 text-red-400',
                       )}>{o.status}</span>
+                    </td>
+                    <td className="px-5 py-3.5 text-right">
+                      <a
+                        href={`/api/orders/${encodeURIComponent(o.reference)}/receipt`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`Receipt for ${o.reference}`}
+                        className="inline-grid size-8 place-items-center rounded-lg text-fg-muted transition-colors hover:bg-fg/5 hover:text-fg"
+                      >
+                        <Download className="size-4" />
+                      </a>
                     </td>
                   </tr>
                 ))}

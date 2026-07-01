@@ -5,14 +5,20 @@ import { toCsv, csvResponse } from '@/lib/csv'
 
 export const runtime = 'nodejs'
 
-/** CSV of every order across all users. Admin-only. */
-export async function GET() {
+/** CSV of every order across all users (honors the same from/to/status filters). Admin-only. */
+export async function GET(req: Request) {
   const store = await cookies()
   const session = await readSession(store.get(SESSION_COOKIE)?.value)
   if (!session?.email) return new Response('Please sign in.', { status: 401 })
   if (!isAdmin(session.email)) return new Response('Not authorized.', { status: 403 })
 
-  const orders = await getAdminOrders(10000)
+  const { searchParams } = new URL(req.url)
+  const orders = await getAdminOrders({
+    from: searchParams.get('from') || undefined,
+    to: searchParams.get('to') || undefined,
+    status: searchParams.get('status') || undefined,
+    limit: 10000,
+  })
   const csv = toCsv(
     ['Reference', 'Email', 'Plan', 'Cycle', 'Currency', 'Amount', 'Method', 'Status', 'Created', 'Paid'],
     orders.map((o) => [

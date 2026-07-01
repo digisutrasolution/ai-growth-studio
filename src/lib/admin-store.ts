@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client'
 import { getPrisma } from './db'
 
 /** Comma-separated allowlist of admin emails, e.g. ADMIN_EMAILS="a@x.com,b@y.com". */
@@ -26,10 +27,36 @@ export interface AdminOrder {
   paidAt: string | null
 }
 
-export async function getAdminOrders(limit = 200): Promise<AdminOrder[]> {
+export interface OrderFilter {
+  from?: string
+  to?: string
+  status?: string
+  limit?: number
+}
+
+/** Build a Prisma where-clause from date-range + status filters. */
+function orderWhere(f: OrderFilter): Prisma.OrderWhereInput {
+  const where: Prisma.OrderWhereInput = {}
+  if (f.status) where.status = f.status
+  if (f.from || f.to) {
+    const createdAt: Prisma.DateTimeFilter = {}
+    if (f.from) createdAt.gte = new Date(f.from)
+    if (f.to) {
+      const end = new Date(f.to)
+      end.setHours(23, 59, 59, 999) // inclusive end-of-day
+      createdAt.lte = end
+    }
+    where.createdAt = createdAt
+  }
+  return where
+}
+
+export async function getAdminOrders(f: OrderFilter = {}): Promise<AdminOrder[]> {
   const prisma = getPrisma()
   if (!prisma) return []
-  const orders = await prisma.order.findMany({ orderBy: { createdAt: 'desc' }, take: limit }).catch(() => [])
+  const orders = await prisma.order
+    .findMany({ where: orderWhere(f), orderBy: { createdAt: 'desc' }, take: f.limit ?? 200 })
+    .catch(() => [])
   return orders.map((o) => ({
     reference: o.reference,
     email: o.email,
@@ -102,4 +129,29 @@ export async function getAdminSummary(): Promise<AdminSummary> {
     paidOrders,
     revenue: revenue.map((r) => ({ currency: r.currency, amount: r._sum.amount ?? 0 })),
   }
+}
+
+/** Set an order's status directly (admin override, e.g. mark a bank transfer failed). */
+export async function adminSetOrderStatus(reference: string, status: string): Promise<{ ok: boolean }> {
+  const prisma = getPrisma()
+  if (!prisma) return { ok: false }
+  const o = await prisma.order.update({ where: { reference }, data: { status } }).catch(() => null)
+  return { ok: Boolean(o) }
+}
+
+/**
+ * Refund an order: mark it refunded and revoke the plan on the buyer's account
+ * (only if that plan is still their current one — avoids downgrading after a
+ * later upgrade).
+ */
+export async function adminRefundOrder(reference: string): Promise<{ ok: boolean }> {
+  const prisma = getPrisma()
+  if (!prisma) return { ok: false }
+  const order = await prisma.order.findUnique({ where: { reference } }).catch(() => null)
+  if (!order) return { ok: false }
+  await prisma.order.update({ where: { reference }, data: { status: 'refunded' } })
+  await prisma.user
+    .updateMany({ where: { email: order.email, plan: order.plan }, data: { plan: 'Free' } })
+    .catch(() => {})
+  return { ok: true }
 }

@@ -5,7 +5,11 @@ import { isAdmin, getAdminSummary, getAdminUsers, getAdminOrders } from '@/lib/a
 
 export const metadata = { title: 'Admin' }
 
-export default async function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ from?: string; to?: string; status?: string }>
+}) {
   const store = await cookies()
   const session = await readSession(store.get(SESSION_COOKIE)?.value)
 
@@ -13,8 +17,13 @@ export default async function Page() {
     return <AdminBoard admin={false} email={session?.email ?? null} />
   }
 
+  const sp = await searchParams
+  const filters = { from: sp.from || '', to: sp.to || '', status: sp.status || '' }
+
   const [summary, users, orders] = await Promise.all([
-    getAdminSummary(), getAdminUsers(), getAdminOrders(100),
+    getAdminSummary(),
+    getAdminUsers(),
+    getAdminOrders({ ...filters, limit: 200 }),
   ])
-  return <AdminBoard admin summary={summary} users={users} orders={orders} email={session!.email} />
+  return <AdminBoard admin summary={summary} users={users} orders={orders} filters={filters} email={session!.email} />
 }

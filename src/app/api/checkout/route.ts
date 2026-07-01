@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { SESSION_COOKIE, readSession } from '@/lib/auth'
 import { getPrisma } from '@/lib/db'
+import { recordOrderProvider } from '@/lib/billing-store'
 import {
   type Currency, type Cycle, type MethodId,
   isMethodConfigured, planPrice, amountMinor, bankAccounts, newReference, appUrl,
@@ -65,6 +66,7 @@ export async function POST(req: Request) {
       const order = await orderRes.json()
       const approve = order.links?.find((l: { rel: string; href: string }) => l.rel === 'approve')?.href
       if (!approve) return NextResponse.json({ error: 'PayPal order failed', detail: order }, { status: 502 })
+      if (order.id) await recordOrderProvider(reference, order.id)
       return NextResponse.json({ type: 'redirect', url: approve, reference })
     }
 
@@ -108,6 +110,7 @@ export async function POST(req: Request) {
       })
       const data = await res.json()
       if (!data.invoice_url) return NextResponse.json({ error: 'Crypto invoice failed', detail: data }, { status: 502 })
+      if (data.id) await recordOrderProvider(reference, String(data.id))
       return NextResponse.json({ type: 'redirect', url: data.invoice_url, reference })
     }
 

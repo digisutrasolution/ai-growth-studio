@@ -12,19 +12,21 @@ model User {
   email     String   @unique
   name      String
   password  String
+  plan      String   @default("Free") // current active plan
   createdAt DateTime @default(now())
 }
 
 model Order {
-  id        String   @id @default(cuid())
-  reference String   @unique
+  id        String    @id @default(cuid())
+  reference String    @unique
   email     String
   plan      String
   cycle     String
   currency  String
   amount    Int // smallest unit (cents / paise)
   method    String
-  status    String   @default("pending") // pending | paid | failed
-  provider  String? // gateway order/invoice id
-  createdAt DateTime @default(now())
+  status    String    @default("pending") // pending | paid | failed
+  provider  String? // gateway order/invoice/link id
+  paidAt    DateTime?
+  createdAt DateTime  @default(now())
 }

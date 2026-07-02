@@ -2,7 +2,7 @@ import {
   Megaphone, TrendingUp, PenLine, Target, Headphones,
   Share2, MousePointerClick, Search, Mail, Sparkles, Workflow, Gauge, BarChart3,
   Users, Bot, FileText, Plug, Brain,
-  LayoutDashboard, Megaphone as CampaignIcon, UserPlus, Building2, Settings, Receipt, ShieldCheck,
+  LayoutDashboard, Megaphone as CampaignIcon, UserPlus, Settings, Receipt, ShieldCheck,
   type LucideIcon,
 } from 'lucide-react'
 

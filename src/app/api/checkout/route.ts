@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { SESSION_COOKIE, readSession } from '@/lib/auth'
 import { getPrisma } from '@/lib/db'
-import { recordOrderProvider } from '@/lib/billing-store'
+import { recordOrderProvider, markOrderPaid } from '@/lib/billing-store'
+import { previewPlanChange } from '@/lib/subscriptions'
 import {
   type Currency, type Cycle, type MethodId,
   isMethodConfigured, planPrice, amountMinor, bankAccounts, newReference, appUrl,
@@ -26,15 +27,28 @@ export async function POST(req: Request) {
   const email = session?.email ?? 'guest@digisutra.solutions'
   const reference = newReference()
 
+  // Proration: credit unused time on an existing subscription against this order.
+  const preview = session?.email
+    ? await previewPlanChange(session.email, plan, currency, cycle)
+    : { dueMinor: amountMinor(plan, currency, cycle) }
+  const chargeMinor = preview.dueMinor
+  const chargeMajor = chargeMinor / 100
+
   // Record the order when a database is configured (pending until paid).
   await getPrisma()?.order.create({
-    data: { reference, email, plan, cycle, currency, amount: amountMinor(plan, currency, cycle), method, status: 'pending' },
+    data: { reference, email, plan, cycle, currency, amount: chargeMinor, method, status: 'pending' },
   }).catch(() => {})
+
+  // Fully covered by proration credit → activate now, no payment needed.
+  if (chargeMinor <= 0) {
+    await markOrderPaid(reference)
+    return NextResponse.json({ type: 'upgraded', reference, plan })
+  }
 
   try {
     // Bank transfer — no gateway, always available.
     if (method === 'bank_transfer') {
-      return NextResponse.json({ type: 'bank', reference, currency, amount: major, accounts: bankAccounts(currency) })
+      return NextResponse.json({ type: 'bank', reference, currency, amount: chargeMajor, accounts: bankAccounts(currency) })
     }
 
     // Gateway not configured → demo response (wire keys to enable).
@@ -59,7 +73,7 @@ export async function POST(req: Request) {
         headers: { Authorization: `Bearer ${tok.access_token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           intent: 'CAPTURE',
-          purchase_units: [{ amount: { currency_code: 'USD', value: major.toFixed(2) }, custom_id: reference, description: `AI Growth Studio — ${plan} (${cycle})` }],
+          purchase_units: [{ amount: { currency_code: 'USD', value: chargeMajor.toFixed(2) }, custom_id: reference, description: `AI Growth Studio — ${plan} (${cycle})` }],
           application_context: { return_url: ret, cancel_url: cancel, brand_name: 'DigiSutra', user_action: 'PAY_NOW' },
         }),
       })
@@ -82,7 +96,7 @@ export async function POST(req: Request) {
         },
         body: JSON.stringify({
           link_id: reference,
-          link_amount: major,
+          link_amount: chargeMajor,
           link_currency: 'INR',
           link_purpose: `AI Growth Studio — ${plan} (${cycle})`,
           customer_details: { customer_email: email, customer_phone: process.env.CASHFREE_TEST_PHONE || '9999999999' },
@@ -100,7 +114,7 @@ export async function POST(req: Request) {
         method: 'POST',
         headers: { 'x-api-key': process.env.NOWPAYMENTS_API_KEY!, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          price_amount: major,
+          price_amount: chargeMajor,
           price_currency: 'usd',
           order_id: reference,
           order_description: `AI Growth Studio — ${plan} (${cycle})`,

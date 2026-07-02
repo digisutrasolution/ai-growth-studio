@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Landmark, Wallet, Bitcoin, Banknote, Check, Loader2, X, Copy, AlertTriangle } from 'lucide-react'
 import { GlassCard } from '@/components/ui/glass-card'
@@ -15,9 +16,13 @@ type Result =
   | { type: 'bank'; reference: string; currency: string; amount: number; accounts: BankAccount[] }
   | { type: 'demo'; message: string }
   | { type: 'contact'; message: string }
+  | { type: 'success'; message: string }
   | { type: 'error'; message: string }
 
+interface Proration { fullMinor: number; creditMinor: number; dueMinor: number; currency: Currency; prorated: boolean }
+
 export function CheckoutPanel({ configured }: { configured: Partial<Record<MethodId, boolean>> }) {
+  const router = useRouter()
   const [currency, setCurrency] = useState<Currency>('USD')
   const [cycle, setCycle] = useState<Cycle>('monthly')
   const [plan, setPlan] = useState('Professional')
@@ -25,6 +30,7 @@ export function CheckoutPanel({ configured }: { configured: Partial<Record<Metho
   const [method, setMethod] = useState<MethodId>('paypal')
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<Result | null>(null)
+  const [proration, setProration] = useState<Proration | null>(null)
 
   // Auto-select currency by the visitor's country (India → INR) unless they pick one.
   const pickedRef = useRef(false)
@@ -34,6 +40,19 @@ export function CheckoutPanel({ configured }: { configured: Partial<Record<Metho
       .then((d) => { if (d?.currency === 'INR' && !pickedRef.current) setCurrency('INR') })
       .catch(() => {})
   }, [])
+
+  // Preview proration whenever the selection changes (credit for unused time).
+  useEffect(() => {
+    let live = true
+    fetch('/api/checkout/preview', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ plan, currency, cycle }),
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (live && d && typeof d.dueMinor === 'number') setProration(d) })
+      .catch(() => { if (live) setProration(null) })
+    return () => { live = false }
+  }, [plan, currency, cycle])
 
   // keep the selected method valid for the chosen currency
   const activeMethod = methods.some((m) => m.id === method) ? method : methods[0].id
@@ -52,7 +71,11 @@ export function CheckoutPanel({ configured }: { configured: Partial<Record<Metho
         window.location.href = data.url
         return
       }
-      if (data.type === 'bank') setResult(data)
+      if (data.type === 'upgraded') {
+        setResult({ type: 'success', message: `Your ${data.plan ?? ''} plan is now active — fully covered by your account credit.` })
+        router.refresh()
+      }
+      else if (data.type === 'bank') setResult(data)
       else if (data.type === 'demo') setResult({ type: 'demo', message: data.message })
       else if (data.type === 'contact') setResult({ type: 'contact', message: data.message })
       else setResult({ type: 'error', message: data.error || 'Checkout failed.' })
@@ -118,9 +141,20 @@ export function CheckoutPanel({ configured }: { configured: Partial<Record<Metho
         })}
       </div>
 
-      <button onClick={checkout} disabled={loading} className={cn(buttonVariants({ size: 'lg' }), 'mt-5 w-full')}>
+      {proration?.prorated && (
+        <div className="mt-4 flex items-center justify-between rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-3 py-2 text-xs text-emerald-500">
+          <span>Credit for unused time: −{currencySymbol[currency]}{(proration.creditMinor / 100).toLocaleString()}</span>
+          <span className="font-medium">Due now: {currencySymbol[currency]}{(proration.dueMinor / 100).toLocaleString()}</span>
+        </div>
+      )}
+
+      <button onClick={checkout} disabled={loading} className={cn(buttonVariants({ size: 'lg' }), 'mt-3 w-full')}>
         {loading ? <Loader2 className="size-4 animate-spin" /> : null}
-        Continue to payment — {formatPrice(plan, currency, cycle)}{plans.find((p) => p.name === plan)?.monthly === 0 ? '' : `/${cycle === 'monthly' ? 'mo' : 'yr'}`}
+        {proration?.prorated
+          ? proration.dueMinor <= 0
+            ? 'Apply upgrade — covered by credit'
+            : `Continue to payment — ${currencySymbol[currency]}${(proration.dueMinor / 100).toLocaleString()} due now`
+          : <>Continue to payment — {formatPrice(plan, currency, cycle)}{plans.find((p) => p.name === plan)?.monthly === 0 ? '' : `/${cycle === 'monthly' ? 'mo' : 'yr'}`}</>}
       </button>
 
       {/* result modal */}
@@ -130,7 +164,7 @@ export function CheckoutPanel({ configured }: { configured: Partial<Record<Metho
             <motion.div initial={{ opacity: 0, y: 12, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12 }} onClick={(e) => e.stopPropagation()} className="glass-strong w-full max-w-md overflow-hidden rounded-3xl border border-line shadow-2xl">
               <div className="flex items-center justify-between border-b border-line px-5 py-4">
                 <p className="text-sm font-semibold">
-                  {result.type === 'bank' ? 'Bank transfer details' : result.type === 'contact' ? 'Enterprise' : result.type === 'demo' ? 'Almost there' : 'Something went wrong'}
+                  {result.type === 'bank' ? 'Bank transfer details' : result.type === 'contact' ? 'Enterprise' : result.type === 'demo' ? 'Almost there' : result.type === 'success' ? 'All set 🎉' : 'Something went wrong'}
                 </p>
                 <button onClick={() => setResult(null)} aria-label="Close" className="grid size-8 place-items-center rounded-lg text-fg-muted hover:bg-fg/5 hover:text-fg"><X className="size-4" /></button>
               </div>

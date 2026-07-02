@@ -23,10 +23,25 @@ model Order {
   plan      String
   cycle     String
   currency  String
-  amount    Int // smallest unit (cents / paise)
+  amount    Int // smallest unit (cents / paise) — amount actually charged (may be prorated)
   method    String
-  status    String    @default("pending") // pending | paid | failed
+  status    String    @default("pending") // pending | paid | failed | refunded
   provider  String? // gateway order/invoice/link id
   paidAt    DateTime?
   createdAt DateTime  @default(now())
+}
+
+model Subscription {
+  id                String    @id @default(cuid())
+  email             String    @unique // one active subscription per account
+  plan              String
+  cycle             String // monthly | yearly
+  currency          String
+  amount            Int // recurring price (full, minor units)
+  status            String    @default("active") // active | past_due | canceled
+  currentPeriodEnd  DateTime
+  cancelAtPeriodEnd Boolean   @default(false)
+  lastReminderAt    DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 }

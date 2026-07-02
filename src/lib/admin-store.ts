@@ -78,14 +78,18 @@ export interface AdminUser {
   createdAt: string
   orders: number
   paid: number
+  subStatus: string | null // active | past_due | canceled | null
+  renewsAt: string | null // ISO — subscription currentPeriodEnd
+  cancelAtPeriodEnd: boolean
 }
 
 export async function getAdminUsers(): Promise<AdminUser[]> {
   const prisma = getPrisma()
   if (!prisma) return []
-  const [users, orders] = await Promise.all([
+  const [users, orders, subs] = await Promise.all([
     prisma.user.findMany({ orderBy: { createdAt: 'desc' } }).catch(() => []),
     prisma.order.findMany({ select: { email: true, status: true } }).catch(() => []),
+    prisma.subscription.findMany().catch(() => []),
   ])
   const counts = new Map<string, { orders: number; paid: number }>()
   for (const o of orders) {
@@ -95,14 +99,21 @@ export async function getAdminUsers(): Promise<AdminUser[]> {
     if (o.status === 'paid') c.paid += 1
     counts.set(key, c)
   }
-  return users.map((u) => ({
-    email: u.email,
-    name: u.name,
-    plan: u.plan,
-    createdAt: u.createdAt.toISOString(),
-    orders: counts.get(u.email.toLowerCase())?.orders ?? 0,
-    paid: counts.get(u.email.toLowerCase())?.paid ?? 0,
-  }))
+  const subByEmail = new Map(subs.map((s) => [s.email.toLowerCase(), s]))
+  return users.map((u) => {
+    const sub = subByEmail.get(u.email.toLowerCase())
+    return {
+      email: u.email,
+      name: u.name,
+      plan: u.plan,
+      createdAt: u.createdAt.toISOString(),
+      orders: counts.get(u.email.toLowerCase())?.orders ?? 0,
+      paid: counts.get(u.email.toLowerCase())?.paid ?? 0,
+      subStatus: sub?.status ?? null,
+      renewsAt: sub ? sub.currentPeriodEnd.toISOString() : null,
+      cancelAtPeriodEnd: sub?.cancelAtPeriodEnd ?? false,
+    }
+  })
 }
 
 export interface AdminSummary {
@@ -110,24 +121,30 @@ export interface AdminSummary {
   orders: number
   paidOrders: number
   revenue: { currency: string; amount: number }[] // minor units, paid only
+  activeSubs: number
+  pastDue: number
 }
 
 export async function getAdminSummary(): Promise<AdminSummary> {
   const prisma = getPrisma()
-  if (!prisma) return { users: 0, orders: 0, paidOrders: 0, revenue: [] }
-  const [users, orders, paidOrders, revenue] = await Promise.all([
+  if (!prisma) return { users: 0, orders: 0, paidOrders: 0, revenue: [], activeSubs: 0, pastDue: 0 }
+  const [users, orders, paidOrders, revenue, activeSubs, pastDue] = await Promise.all([
     prisma.user.count().catch(() => 0),
     prisma.order.count().catch(() => 0),
     prisma.order.count({ where: { status: 'paid' } }).catch(() => 0),
     prisma.order
       .groupBy({ by: ['currency'], where: { status: 'paid' }, _sum: { amount: true } })
       .catch(() => [] as { currency: string; _sum: { amount: number | null } }[]),
+    prisma.subscription.count({ where: { status: 'active' } }).catch(() => 0),
+    prisma.subscription.count({ where: { status: 'past_due' } }).catch(() => 0),
   ])
   return {
     users,
     orders,
     paidOrders,
     revenue: revenue.map((r) => ({ currency: r.currency, amount: r._sum.amount ?? 0 })),
+    activeSubs,
+    pastDue,
   }
 }
 

@@ -1,4 +1,4 @@
-import { ShieldCheck, Lock, Users, Receipt, CheckCircle2, Download, Wallet } from 'lucide-react'
+import { ShieldCheck, Lock, Users, AlertTriangle, CheckCircle2, Download, Wallet } from 'lucide-react'
 import { GlassCard } from '@/components/ui/glass-card'
 import { AdminOrderActions } from '@/components/app/admin-order-actions'
 import { cn } from '@/lib/utils'
@@ -26,6 +26,12 @@ const statusStyle: Record<string, string> = {
   pending: 'bg-amber-400/15 text-amber-400',
   failed: 'bg-red-400/15 text-red-400',
   refunded: 'bg-fg/10 text-fg-muted',
+}
+
+const subStyle: Record<string, string> = {
+  active: 'bg-emerald-400/15 text-emerald-400',
+  past_due: 'bg-amber-400/15 text-amber-400',
+  canceled: 'bg-fg/10 text-fg-muted',
 }
 
 export function AdminBoard(props: {
@@ -69,8 +75,8 @@ export function AdminBoard(props: {
 
   const stats = [
     { label: 'Users', value: String(summary?.users ?? 0), icon: Users },
-    { label: 'Orders', value: String(summary?.orders ?? 0), icon: Receipt },
-    { label: 'Paid orders', value: String(summary?.paidOrders ?? 0), icon: CheckCircle2 },
+    { label: 'Active subscriptions', value: String(summary?.activeSubs ?? 0), icon: CheckCircle2 },
+    { label: 'Past due', value: String(summary?.pastDue ?? 0), icon: AlertTriangle, alert: (summary?.pastDue ?? 0) > 0 },
     { label: 'Revenue (paid)', value: revenueStr, icon: Wallet },
   ]
 
@@ -90,9 +96,9 @@ export function AdminBoard(props: {
           <GlassCard key={s.label} className="p-5">
             <div className="flex items-center justify-between">
               <p className="text-sm text-fg-muted">{s.label}</p>
-              <s.icon className="size-4 text-accent" />
+              <s.icon className={cn('size-4', s.alert ? 'text-amber-400' : 'text-accent')} />
             </div>
-            <p className="mt-2 text-2xl font-semibold tracking-tight">{s.value}</p>
+            <p className={cn('mt-2 text-2xl font-semibold tracking-tight', s.alert && 'text-amber-400')}>{s.value}</p>
           </GlassCard>
         ))}
       </div>
@@ -180,11 +186,13 @@ export function AdminBoard(props: {
           <p className="px-5 py-10 text-center text-sm text-fg-muted">No accounts yet.</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[620px] text-sm">
+            <table className="w-full min-w-[780px] text-sm">
               <thead>
                 <tr className="border-y border-line text-left text-xs uppercase tracking-wider text-fg-muted">
                   <th className="px-5 py-3 font-medium">Account</th>
                   <th className="px-5 py-3 font-medium">Plan</th>
+                  <th className="px-5 py-3 font-medium">Subscription</th>
+                  <th className="px-5 py-3 font-medium">Renews</th>
                   <th className="px-5 py-3 font-medium">Joined</th>
                   <th className="px-5 py-3 text-right font-medium">Orders</th>
                   <th className="px-5 py-3 text-right font-medium">Paid</th>
@@ -198,6 +206,16 @@ export function AdminBoard(props: {
                       <p className="text-xs text-fg-muted">{u.email}</p>
                     </td>
                     <td className="px-5 py-3"><span className="rounded-full bg-brand/10 px-2 py-0.5 text-[11px] font-medium text-brand">{u.plan}</span></td>
+                    <td className="px-5 py-3">
+                      {u.subStatus
+                        ? <span className={cn('rounded-full px-2 py-0.5 text-[11px] font-medium capitalize', subStyle[u.subStatus] ?? 'bg-fg/10 text-fg-muted')}>{u.subStatus === 'past_due' ? 'past due' : u.subStatus}</span>
+                        : <span className="text-xs text-fg-muted">—</span>}
+                    </td>
+                    <td className="px-5 py-3 text-xs text-fg-muted">
+                      {u.renewsAt && u.subStatus !== 'canceled'
+                        ? <>{fmtDate(u.renewsAt)}{u.cancelAtPeriodEnd && <span className="text-amber-400"> · cancels</span>}</>
+                        : '—'}
+                    </td>
                     <td className="px-5 py-3 text-fg-muted">{fmtDate(u.createdAt)}</td>
                     <td className="px-5 py-3 text-right tabular-nums">{u.orders}</td>
                     <td className="px-5 py-3 text-right tabular-nums">{u.paid}</td>

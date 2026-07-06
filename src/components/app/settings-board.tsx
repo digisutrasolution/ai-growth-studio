@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { UserPlus, Shield } from 'lucide-react'
 import { GlassCard } from '@/components/ui/glass-card'
 import { buttonVariants } from '@/components/ui/button'
+import { ChangePasswordCard } from '@/components/app/change-password-card'
 import { teamMembers, roleStyles, notificationPrefs } from '@/lib/data'
 import { cn } from '@/lib/utils'
 
@@ -125,6 +126,9 @@ export function SettingsBoard() {
             ))}
           </ul>
         </GlassCard>
+
+        {/* Change password (real) */}
+        <ChangePasswordCard />
       </div>
     </div>
   )

@@ -49,3 +49,24 @@ export function nameFromEmail(email: string): string {
   const handle = email.split('@')[0] ?? 'there'
   return handle.charAt(0).toUpperCase() + handle.slice(1)
 }
+
+/** Short-lived, signed token for a password-reset link (30 minutes). */
+export async function createResetToken(email: string): Promise<string> {
+  return await new SignJWT({ email, purpose: 'reset' })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('30m')
+    .sign(secret)
+}
+
+/** Verify a reset token and return the email, or null if invalid/expired. */
+export async function readResetToken(token: string | undefined | null): Promise<string | null> {
+  if (!token) return null
+  try {
+    const { payload } = await jwtVerify(token, secret)
+    if (payload.purpose === 'reset' && typeof payload.email === 'string') return payload.email
+    return null
+  } catch {
+    return null
+  }
+}

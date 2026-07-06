@@ -148,6 +148,18 @@ export async function sendDunningEmail(o: {
   })
 }
 
+/** Password-reset link email. */
+export async function sendPasswordResetEmail(o: { to: string; url: string }) {
+  const body = `
+    <p style="margin:0 0 12px">We received a request to reset the password for your DigiSutra account. Click below to choose a new one — the link expires in 30 minutes.</p>
+    <p style="margin:0;color:#8a8aa8;font-size:13px">If you didn't request this, you can safely ignore this email; your password won't change.</p>`
+  return sendMail({
+    to: o.to, subject: 'Reset your DigiSutra password',
+    html: shell('Reset your password', body, { label: 'Set a new password', url: o.url }, `Password reset for ${o.to}.`),
+    text: `Reset your DigiSutra password (link expires in 30 min): ${o.url}\nIf you didn't request this, ignore this email.`,
+  })
+}
+
 /** Sent when a subscription is canceled (non-payment or by request). */
 export async function sendSubscriptionCanceledEmail(o: { to: string; plan: string; reason: 'nonpayment' | 'requested' }) {
   const billing = `${appUrl}/dashboard/billing`

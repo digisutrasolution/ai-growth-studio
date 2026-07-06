@@ -24,6 +24,23 @@ export async function createUser(name: string, email: string, password: string):
   return { email: user.email, name: user.name }
 }
 
+/** Whether an account exists for this email. */
+export async function userExists(email: string): Promise<boolean> {
+  const prisma = getPrisma()
+  if (!prisma) return false
+  const user = await prisma.user.findUnique({ where: { email }, select: { id: true } }).catch(() => null)
+  return Boolean(user)
+}
+
+/** Set a new hashed password. Returns false if no such user / no DB. */
+export async function setPassword(email: string, password: string): Promise<boolean> {
+  const prisma = getPrisma()
+  if (!prisma) return false
+  const hash = await bcrypt.hash(password, 10)
+  const r = await prisma.user.updateMany({ where: { email }, data: { password: hash } }).catch(() => ({ count: 0 }))
+  return r.count > 0
+}
+
 /** Verify credentials. Returns the user on success, null on failure. */
 export async function authenticate(email: string, password: string): Promise<PublicUser | null> {
   const prisma = getPrisma()

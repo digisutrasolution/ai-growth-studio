@@ -95,6 +95,12 @@ export function AuthForm({ mode }: { mode: 'login' | 'signup' }) {
           </div>
         </Field>
 
+        {!isSignup && (
+          <div className="-mt-1 text-right">
+            <Link href="/forgot" className="text-xs font-medium text-accent hover:underline">Forgot password?</Link>
+          </div>
+        )}
+
         <button type="submit" disabled={loading !== null} className={cn(buttonVariants({ size: 'lg' }), 'w-full')}>
           {loading === 'form' ? <Loader2 className="size-4 animate-spin" /> : null}
           {isSignup ? 'Create account' : 'Sign in'}

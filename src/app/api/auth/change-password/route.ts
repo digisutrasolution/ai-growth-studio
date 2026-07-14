@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { SESSION_COOKIE, readSession } from '@/lib/auth'
 import { isDbEnabled, authenticate, setPassword } from '@/lib/users'
+import { rateLimit, clientIp, tooMany } from '@/lib/rate-limit'
+import { logAudit } from '@/lib/audit'
 
 export const runtime = 'nodejs'
 
@@ -10,6 +12,10 @@ export async function POST(req: Request) {
   const store = await cookies()
   const session = await readSession(store.get(SESSION_COOKIE)?.value)
   if (!session?.email) return NextResponse.json({ error: 'Sign in required.' }, { status: 401 })
+
+  const ip = clientIp(req)
+  const rl = rateLimit(`change-pw:${session.email}`, 10, 15 * 60_000)
+  if (!rl.ok) return tooMany(rl.retryAfter)
 
   const { currentPassword, newPassword } = (await req.json().catch(() => ({}))) as {
     currentPassword?: string; newPassword?: string
@@ -26,5 +32,6 @@ export async function POST(req: Request) {
   const done = await setPassword(session.email, newPassword)
   if (!done) return NextResponse.json({ error: 'Could not update the password. Please try again.' }, { status: 500 })
 
+  await logAudit({ actor: session.email, action: 'auth.password_change', target: session.email, ip })
   return NextResponse.json({ ok: true })
 }

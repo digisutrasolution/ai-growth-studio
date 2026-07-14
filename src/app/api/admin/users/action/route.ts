@@ -6,6 +6,8 @@ import { isAdmin } from '@/lib/admin-store'
 import { isDbEnabled, userExists, setPassword } from '@/lib/users'
 import { sendPasswordResetEmail, isEmailEnabled } from '@/lib/email'
 import { appUrl } from '@/lib/payments'
+import { clientIp } from '@/lib/rate-limit'
+import { logAudit } from '@/lib/audit'
 
 export const runtime = 'nodejs'
 
@@ -28,10 +30,13 @@ export async function POST(req: Request) {
   if (!isDbEnabled()) return NextResponse.json({ error: 'Unavailable in demo mode.' }, { status: 400 })
   if (!(await userExists(email))) return NextResponse.json({ error: 'No such account.' }, { status: 404 })
 
+  const ip = clientIp(req)
+
   if (action === 'send_reset_link') {
     const token = await createResetToken(email)
     const url = `${appUrl}/reset?token=${encodeURIComponent(token)}`
     await sendPasswordResetEmail({ to: email, url }).catch(() => {})
+    await logAudit({ actor: session.email, action: 'user.reset_link', target: email, ip })
     return NextResponse.json({ ok: true, emailed: isEmailEnabled() })
   }
 
@@ -39,6 +44,7 @@ export async function POST(req: Request) {
     const tempPassword = genTempPassword()
     const done = await setPassword(email, tempPassword)
     if (!done) return NextResponse.json({ error: 'Could not set a temporary password.' }, { status: 500 })
+    await logAudit({ actor: session.email, action: 'user.temp_password', target: email, ip })
     return NextResponse.json({ ok: true, tempPassword })
   }
 

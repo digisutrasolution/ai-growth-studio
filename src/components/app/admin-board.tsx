@@ -5,6 +5,7 @@ import { AdminUserActions } from '@/components/app/admin-user-actions'
 import { cn } from '@/lib/utils'
 import { currencySymbol, type Currency } from '@/lib/payments'
 import type { AdminSummary, AdminUser, AdminOrder } from '@/lib/admin-store'
+import type { AuditRow } from '@/lib/audit'
 
 interface Filters { from: string; to: string; status: string }
 const STATUS_OPTIONS = ['', 'pending', 'paid', 'failed', 'refunded']
@@ -20,6 +21,21 @@ function money(minor: number, currency: string) {
 
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+function fmtDateTime(iso: string) {
+  return new Date(iso).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+}
+
+const AUDIT_LABEL: Record<string, string> = {
+  'order.mark_paid': 'Marked order paid',
+  'order.mark_failed': 'Marked order failed',
+  'order.refund': 'Refunded order',
+  'user.reset_link': 'Sent reset link',
+  'user.temp_password': 'Set temp password',
+  'auth.password_change': 'Changed own password',
+  'auth.password_reset': 'Reset password (link)',
+  'auth.reset_requested': 'Requested reset link',
 }
 
 const statusStyle: Record<string, string> = {
@@ -41,6 +57,7 @@ export function AdminBoard(props: {
   summary?: AdminSummary
   users?: AdminUser[]
   orders?: AdminOrder[]
+  audit?: AuditRow[]
   filters?: Filters
 }) {
   if (!props.admin) {
@@ -60,7 +77,7 @@ export function AdminBoard(props: {
     )
   }
 
-  const { summary, users = [], orders = [] } = props
+  const { summary, users = [], orders = [], audit = [] } = props
   const filters: Filters = props.filters ?? { from: '', to: '', status: '' }
   const hasFilters = Boolean(filters.from || filters.to || filters.status)
   const revenueStr = summary && summary.revenue.length
@@ -222,6 +239,42 @@ export function AdminBoard(props: {
                     <td className="px-5 py-3 text-right tabular-nums">{u.orders}</td>
                     <td className="px-5 py-3 text-right tabular-nums">{u.paid}</td>
                     <td className="px-5 py-3"><AdminUserActions email={u.email} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </GlassCard>
+
+      {/* Audit log */}
+      <GlassCard className="overflow-hidden p-0">
+        <div className="px-5 py-4">
+          <h3 className="font-semibold">Audit log</h3>
+          <p className="text-xs text-fg-muted">Recent admin actions and password events</p>
+        </div>
+        {audit.length === 0 ? (
+          <p className="px-5 py-10 text-center text-sm text-fg-muted">No activity recorded yet.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[640px] text-sm">
+              <thead>
+                <tr className="border-y border-line text-left text-xs uppercase tracking-wider text-fg-muted">
+                  <th className="px-5 py-3 font-medium">When</th>
+                  <th className="px-5 py-3 font-medium">Actor</th>
+                  <th className="px-5 py-3 font-medium">Action</th>
+                  <th className="px-5 py-3 font-medium">Target</th>
+                  <th className="px-5 py-3 font-medium">IP</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-line">
+                {audit.map((a, i) => (
+                  <tr key={i} className="transition-colors hover:bg-fg/[0.03]">
+                    <td className="px-5 py-3 whitespace-nowrap text-fg-muted">{fmtDateTime(a.createdAt)}</td>
+                    <td className="px-5 py-3">{a.actor}</td>
+                    <td className="px-5 py-3">{AUDIT_LABEL[a.action] ?? a.action}</td>
+                    <td className="px-5 py-3 font-mono text-xs text-fg-muted">{a.target ?? '—'}</td>
+                    <td className="px-5 py-3 font-mono text-xs text-fg-muted">{a.ip ?? '—'}</td>
                   </tr>
                 ))}
               </tbody>

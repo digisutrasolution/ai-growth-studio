@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server'
 import { SESSION_COOKIE, SESSION_MAX_AGE, createSession, nameFromEmail } from '@/lib/auth'
 import { isDbEnabled, authenticate } from '@/lib/users'
+import { rateLimit, clientIp, tooMany } from '@/lib/rate-limit'
 
 // Prisma needs the Node.js runtime.
 export const runtime = 'nodejs'
 
 export async function POST(req: Request) {
+  const rl = rateLimit(`login:${clientIp(req)}`, 10, 5 * 60_000)
+  if (!rl.ok) return tooMany(rl.retryAfter)
+
   const { email, password } = await req.json().catch(() => ({}) as Record<string, string>)
 
   if (!email || !password) {

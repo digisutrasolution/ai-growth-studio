@@ -31,6 +31,18 @@ model Order {
   createdAt DateTime  @default(now())
 }
 
+model AuditLog {
+  id        String   @id @default(cuid())
+  actor     String // who performed it (email) or 'system'
+  action    String // e.g. order.mark_paid, user.reset_link, auth.password_change
+  target    String? // affected email / order reference
+  detail    String?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
 model Subscription {
   id                String    @id @default(cuid())
   email             String    @unique // one active subscription per account

@@ -1,6 +1,7 @@
 import { ShieldCheck, Lock, Users, AlertTriangle, CheckCircle2, Download, Wallet } from 'lucide-react'
 import { GlassCard } from '@/components/ui/glass-card'
 import { AdminOrderActions } from '@/components/app/admin-order-actions'
+import { AdminUserActions } from '@/components/app/admin-user-actions'
 import { cn } from '@/lib/utils'
 import { currencySymbol, type Currency } from '@/lib/payments'
 import type { AdminSummary, AdminUser, AdminOrder } from '@/lib/admin-store'
@@ -186,7 +187,7 @@ export function AdminBoard(props: {
           <p className="px-5 py-10 text-center text-sm text-fg-muted">No accounts yet.</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[780px] text-sm">
+            <table className="w-full min-w-[920px] text-sm">
               <thead>
                 <tr className="border-y border-line text-left text-xs uppercase tracking-wider text-fg-muted">
                   <th className="px-5 py-3 font-medium">Account</th>
@@ -196,6 +197,7 @@ export function AdminBoard(props: {
                   <th className="px-5 py-3 font-medium">Joined</th>
                   <th className="px-5 py-3 text-right font-medium">Orders</th>
                   <th className="px-5 py-3 text-right font-medium">Paid</th>
+                  <th className="px-5 py-3 text-right font-medium">Password</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-line">
@@ -219,6 +221,7 @@ export function AdminBoard(props: {
                     <td className="px-5 py-3 text-fg-muted">{fmtDate(u.createdAt)}</td>
                     <td className="px-5 py-3 text-right tabular-nums">{u.orders}</td>
                     <td className="px-5 py-3 text-right tabular-nums">{u.paid}</td>
+                    <td className="px-5 py-3"><AdminUserActions email={u.email} /></td>
                   </tr>
                 ))}
               </tbody>

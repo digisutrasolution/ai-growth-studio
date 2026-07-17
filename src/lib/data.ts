@@ -37,7 +37,7 @@ export const agents: Agent[] = [
     tagline: 'Ranks you higher, automatically',
     description: 'Researches keywords, audits your site for technical issues, and ships prioritized fixes to climb the SERPs.',
     icon: TrendingUp,
-    accent: 'text-blue-400',
+    accent: 'text-orange-500',
     glow: '#ea580c',
     capabilities: ['Keyword research', 'Website audit', 'Ranking suggestions'],
     stats: [{ label: 'Keywords tracked', value: '2.1M' }, { label: 'Pages audited', value: '860k' }],
@@ -48,7 +48,7 @@ export const agents: Agent[] = [
     tagline: 'On-brand content at scale',
     description: 'Writes blogs, social posts, and ad copy in your brand voice — researched, SEO-aware, and ready to publish.',
     icon: PenLine,
-    accent: 'text-cyan-400',
+    accent: 'text-amber-400',
     glow: '#f59e0b',
     capabilities: ['Blog writing', 'Social media posts', 'Copy generation'],
     stats: [{ label: 'Assets created', value: '5.4M' }, { label: 'Hours saved', value: '120k+' }],
@@ -196,8 +196,8 @@ export const teamMembers: { name: string; email: string; role: TeamRole; initial
 
 export const roleStyles: Record<TeamRole, string> = {
   Owner: 'bg-orange-400/15 text-orange-400',
-  Admin: 'bg-blue-400/15 text-blue-400',
-  Editor: 'bg-cyan-400/15 text-cyan-400',
+  Admin: 'bg-red-400/15 text-red-400',
+  Editor: 'bg-yellow-400/15 text-yellow-400',
   Viewer: 'bg-fg/10 text-fg-muted',
 }
 
@@ -290,16 +290,16 @@ export interface Campaign {
 }
 
 export const channelStyles: Record<Campaign['channel'], string> = {
-  Meta: 'bg-blue-400/15 text-blue-400',
+  Meta: 'bg-red-400/15 text-red-400',
   Google: 'bg-amber-400/15 text-amber-400',
-  TikTok: 'bg-amber-400/15 text-amber-400',
-  Email: 'bg-cyan-400/15 text-cyan-400',
+  TikTok: 'bg-rose-400/15 text-rose-400',
+  Email: 'bg-yellow-400/15 text-yellow-400',
   LinkedIn: 'bg-orange-400/15 text-orange-400',
 }
 
 export const campaignStatusStyles: Record<CampaignStatus, string> = {
   Active: 'bg-emerald-400/15 text-emerald-400',
-  Scheduled: 'bg-blue-400/15 text-blue-400',
+  Scheduled: 'bg-orange-400/15 text-orange-400',
   Paused: 'bg-amber-400/15 text-amber-400',
   Completed: 'bg-fg/10 text-fg-muted',
 }
@@ -373,7 +373,7 @@ export const workflows: Workflow[] = [
 export const nodeKindStyles: Record<NodeKind, { ring: string; chip: string; label: string }> = {
   trigger: { ring: 'border-orange-400/40', chip: 'bg-orange-400/15 text-orange-400', label: 'Trigger' },
   condition: { ring: 'border-amber-400/40', chip: 'bg-amber-400/15 text-amber-400', label: 'Condition' },
-  action: { ring: 'border-cyan-400/40', chip: 'bg-cyan-400/15 text-cyan-400', label: 'Action' },
+  action: { ring: 'border-red-400/40', chip: 'bg-red-400/15 text-red-400', label: 'Action' },
 }
 
 /* ── Customers (for /dashboard/customers) ─────────────────────── */
@@ -383,8 +383,8 @@ export interface CustomerSegment { name: string; count: number; share: number; a
 
 export const customerSegments: CustomerSegment[] = [
   { name: 'Champions', count: 1840, share: 22, accent: 'text-emerald-400' },
-  { name: 'Loyal', count: 3120, share: 37, accent: 'text-blue-400' },
-  { name: 'Promising', count: 1560, share: 18, accent: 'text-cyan-400' },
+  { name: 'Loyal', count: 3120, share: 37, accent: 'text-orange-400' },
+  { name: 'Promising', count: 1560, share: 18, accent: 'text-yellow-400' },
   { name: 'At risk', count: 980, share: 12, accent: 'text-amber-400' },
   { name: 'Dormant', count: 920, share: 11, accent: 'text-rose-400' },
 ]

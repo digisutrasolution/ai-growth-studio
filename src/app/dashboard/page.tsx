@@ -9,12 +9,12 @@ import { cn } from '@/lib/utils'
 const impactColor: Record<string, string> = {
   High: 'bg-emerald-400/15 text-emerald-400',
   Medium: 'bg-amber-400/15 text-amber-400',
-  Low: 'bg-blue-400/15 text-blue-400',
+  Low: 'bg-rose-400/15 text-rose-400',
 }
 
 const statusColor: Record<string, string> = {
   Active: 'bg-emerald-400/15 text-emerald-400',
-  Scheduled: 'bg-blue-400/15 text-blue-400',
+  Scheduled: 'bg-orange-400/15 text-orange-400',
   Paused: 'bg-fg/10 text-fg-muted',
 }
 

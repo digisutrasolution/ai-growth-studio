@@ -17,26 +17,26 @@ export function RevenueChart() {
       <AreaChart data={revenueSeries} margin={{ left: -18, right: 8, top: 8 }}>
         <defs>
           <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#7c3aed" stopOpacity={0.6} />
-            <stop offset="100%" stopColor="#7c3aed" stopOpacity={0} />
+            <stop offset="0%" stopColor="#f97316" stopOpacity={0.6} />
+            <stop offset="100%" stopColor="#f97316" stopOpacity={0} />
           </linearGradient>
           <linearGradient id="spend" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#06b6d4" stopOpacity={0.35} />
-            <stop offset="100%" stopColor="#06b6d4" stopOpacity={0} />
+            <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.35} />
+            <stop offset="100%" stopColor="#f59e0b" stopOpacity={0} />
           </linearGradient>
         </defs>
         <CartesianGrid strokeDasharray="3 3" stroke="var(--line)" vertical={false} />
         <XAxis dataKey="month" tick={{ fill: 'var(--fg-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
         <YAxis tick={{ fill: 'var(--fg-muted)', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${v / 1000}k`} />
         <Tooltip contentStyle={tooltipStyle} formatter={(v) => `$${Number(v).toLocaleString()}`} cursor={{ stroke: 'var(--line)' }} />
-        <Area type="monotone" dataKey="revenue" stroke="#7c3aed" strokeWidth={2} fill="url(#rev)" />
-        <Area type="monotone" dataKey="spend" stroke="#06b6d4" strokeWidth={2} fill="url(#spend)" />
+        <Area type="monotone" dataKey="revenue" stroke="#f97316" strokeWidth={2} fill="url(#rev)" />
+        <Area type="monotone" dataKey="spend" stroke="#f59e0b" strokeWidth={2} fill="url(#spend)" />
       </AreaChart>
     </ResponsiveContainer>
   )
 }
 
-const channelColors = ['#7c3aed', '#2563eb', '#06b6d4', '#10b981', '#d946ef']
+const channelColors = ['#f97316', '#ea580c', '#f59e0b', '#10b981', '#eab308']
 
 export function ChannelChart() {
   return (

@@ -26,8 +26,8 @@ export const agents: Agent[] = [
     tagline: 'Plans, launches & optimizes campaigns',
     description: 'Builds full-funnel campaigns, finds your highest-intent audiences, and continuously reallocates budget toward what converts.',
     icon: Megaphone,
-    accent: 'text-violet-400',
-    glow: '#7c3aed',
+    accent: 'text-orange-400',
+    glow: '#f97316',
     capabilities: ['Campaign creation', 'Audience targeting', 'Ad optimization'],
     stats: [{ label: 'Campaigns run', value: '48.2k' }, { label: 'Avg. ROAS lift', value: '+34%' }],
   },
@@ -38,7 +38,7 @@ export const agents: Agent[] = [
     description: 'Researches keywords, audits your site for technical issues, and ships prioritized fixes to climb the SERPs.',
     icon: TrendingUp,
     accent: 'text-blue-400',
-    glow: '#2563eb',
+    glow: '#ea580c',
     capabilities: ['Keyword research', 'Website audit', 'Ranking suggestions'],
     stats: [{ label: 'Keywords tracked', value: '2.1M' }, { label: 'Pages audited', value: '860k' }],
   },
@@ -49,7 +49,7 @@ export const agents: Agent[] = [
     description: 'Writes blogs, social posts, and ad copy in your brand voice — researched, SEO-aware, and ready to publish.',
     icon: PenLine,
     accent: 'text-cyan-400',
-    glow: '#06b6d4',
+    glow: '#f59e0b',
     capabilities: ['Blog writing', 'Social media posts', 'Copy generation'],
     stats: [{ label: 'Assets created', value: '5.4M' }, { label: 'Hours saved', value: '120k+' }],
   },
@@ -70,8 +70,8 @@ export const agents: Agent[] = [
     tagline: '24/7 resolution on autopilot',
     description: 'Answers customers instantly from your knowledge base, triages tickets, and escalates only what truly needs a human.',
     icon: Headphones,
-    accent: 'text-fuchsia-400',
-    glow: '#d946ef',
+    accent: 'text-amber-400',
+    glow: '#eab308',
     capabilities: ['24/7 chatbot', 'Ticket handling', 'Knowledge base'],
     stats: [{ label: 'Tickets resolved', value: '9.7M' }, { label: 'Auto-resolve', value: '78%' }],
   },
@@ -195,7 +195,7 @@ export const teamMembers: { name: string; email: string; role: TeamRole; initial
 ]
 
 export const roleStyles: Record<TeamRole, string> = {
-  Owner: 'bg-violet-400/15 text-violet-400',
+  Owner: 'bg-orange-400/15 text-orange-400',
   Admin: 'bg-blue-400/15 text-blue-400',
   Editor: 'bg-cyan-400/15 text-cyan-400',
   Viewer: 'bg-fg/10 text-fg-muted',
@@ -292,9 +292,9 @@ export interface Campaign {
 export const channelStyles: Record<Campaign['channel'], string> = {
   Meta: 'bg-blue-400/15 text-blue-400',
   Google: 'bg-amber-400/15 text-amber-400',
-  TikTok: 'bg-fuchsia-400/15 text-fuchsia-400',
+  TikTok: 'bg-amber-400/15 text-amber-400',
   Email: 'bg-cyan-400/15 text-cyan-400',
-  LinkedIn: 'bg-violet-400/15 text-violet-400',
+  LinkedIn: 'bg-orange-400/15 text-orange-400',
 }
 
 export const campaignStatusStyles: Record<CampaignStatus, string> = {
@@ -371,7 +371,7 @@ export const workflows: Workflow[] = [
 ]
 
 export const nodeKindStyles: Record<NodeKind, { ring: string; chip: string; label: string }> = {
-  trigger: { ring: 'border-violet-400/40', chip: 'bg-violet-400/15 text-violet-400', label: 'Trigger' },
+  trigger: { ring: 'border-orange-400/40', chip: 'bg-orange-400/15 text-orange-400', label: 'Trigger' },
   condition: { ring: 'border-amber-400/40', chip: 'bg-amber-400/15 text-amber-400', label: 'Condition' },
   action: { ring: 'border-cyan-400/40', chip: 'bg-cyan-400/15 text-cyan-400', label: 'Action' },
 }

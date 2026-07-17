@@ -10,11 +10,11 @@ import { agents } from '@/lib/data'
 import { cn } from '@/lib/utils'
 
 const activity = [
-  { agent: 'Marketing AI Agent', action: 'Reallocated $4.2k budget to TikTok', time: '2m ago', accent: 'text-violet-400' },
+  { agent: 'Marketing AI Agent', action: 'Reallocated $4.2k budget to TikTok', time: '2m ago', accent: 'text-orange-400' },
   { agent: 'SEO AI Agent', action: 'Fixed 12 broken links on /blog', time: '14m ago', accent: 'text-blue-400' },
   { agent: 'Content AI Agent', action: 'Drafted 3 social posts for review', time: '38m ago', accent: 'text-cyan-400' },
   { agent: 'Sales AI Agent', action: 'Qualified 24 new inbound leads', time: '1h ago', accent: 'text-emerald-400' },
-  { agent: 'Customer Support AI Agent', action: 'Resolved 86 tickets autonomously', time: '2h ago', accent: 'text-fuchsia-400' },
+  { agent: 'Customer Support AI Agent', action: 'Resolved 86 tickets autonomously', time: '2h ago', accent: 'text-amber-400' },
 ]
 
 function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {

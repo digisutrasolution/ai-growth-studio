@@ -14,7 +14,7 @@ function scoreStyle(score: number) {
 
 const stageAccent: Record<LeadStage, string> = {
   New: 'bg-blue-400',
-  Contacted: 'bg-violet-400',
+  Contacted: 'bg-orange-400',
   Qualified: 'bg-cyan-400',
   Proposal: 'bg-amber-400',
   Won: 'bg-emerald-400',

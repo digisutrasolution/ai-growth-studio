@@ -24,6 +24,14 @@ export async function createUser(name: string, email: string, password: string):
   return { email: user.email, name: user.name }
 }
 
+/** Fetch a user's public fields by email. */
+export async function getPublicUser(email: string): Promise<PublicUser | null> {
+  const prisma = getPrisma()
+  if (!prisma) return null
+  const u = await prisma.user.findUnique({ where: { email }, select: { email: true, name: true } }).catch(() => null)
+  return u ? { email: u.email, name: u.name } : null
+}
+
 /** Whether an account exists for this email. */
 export async function userExists(email: string): Promise<boolean> {
   const prisma = getPrisma()

@@ -6,6 +6,7 @@ import { UserPlus, Shield } from 'lucide-react'
 import { GlassCard } from '@/components/ui/glass-card'
 import { buttonVariants } from '@/components/ui/button'
 import { ChangePasswordCard } from '@/components/app/change-password-card'
+import { TwoFactorCard } from '@/components/app/two-factor-card'
 import { teamMembers, roleStyles, notificationPrefs } from '@/lib/data'
 import { cn } from '@/lib/utils'
 
@@ -129,6 +130,9 @@ export function SettingsBoard() {
 
         {/* Change password (real) */}
         <ChangePasswordCard />
+
+        {/* Two-factor authentication (real) */}
+        <TwoFactorCard />
       </div>
     </div>
   )

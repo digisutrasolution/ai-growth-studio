@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
-import { SESSION_COOKIE, SESSION_MAX_AGE, createSession, nameFromEmail } from '@/lib/auth'
+import { SESSION_COOKIE, SESSION_MAX_AGE, createSession, createTwoFactorTicket, nameFromEmail } from '@/lib/auth'
 import { isDbEnabled, authenticate } from '@/lib/users'
+import { isTwoFactorEnabled } from '@/lib/twofactor'
 import { rateLimit, clientIp, tooMany } from '@/lib/rate-limit'
 
 // Prisma needs the Node.js runtime.
@@ -24,6 +25,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid email or password.' }, { status: 401 })
     }
     user = found
+
+    // If the account has 2FA on, don't issue a session yet — require a code.
+    if (await isTwoFactorEnabled(user.email)) {
+      const ticket = await createTwoFactorTicket(user.email)
+      return NextResponse.json({ twoFactor: true, ticket })
+    }
   } else {
     // Demo mode (no DATABASE_URL): accept any credentials.
     user = { email, name: nameFromEmail(email) }

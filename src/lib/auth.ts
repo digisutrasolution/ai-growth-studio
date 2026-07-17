@@ -50,6 +50,26 @@ export function nameFromEmail(email: string): string {
   return handle.charAt(0).toUpperCase() + handle.slice(1)
 }
 
+/** Short-lived ticket proving the password step passed, pending a 2FA code (10 min). */
+export async function createTwoFactorTicket(email: string): Promise<string> {
+  return await new SignJWT({ email, purpose: '2fa' })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('10m')
+    .sign(secret)
+}
+
+export async function readTwoFactorTicket(token: string | undefined | null): Promise<string | null> {
+  if (!token) return null
+  try {
+    const { payload } = await jwtVerify(token, secret)
+    if (payload.purpose === '2fa' && typeof payload.email === 'string') return payload.email
+    return null
+  } catch {
+    return null
+  }
+}
+
 /** Short-lived, signed token for a password-reset link (30 minutes). */
 export async function createResetToken(email: string): Promise<string> {
   return await new SignJWT({ email, purpose: 'reset' })

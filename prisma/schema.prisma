@@ -8,12 +8,15 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String
-  password  String
-  plan      String   @default("Free") // current active plan
-  createdAt DateTime @default(now())
+  id               String   @id @default(cuid())
+  email            String   @unique
+  name             String
+  password         String
+  plan             String   @default("Free") // current active plan
+  twoFactorSecret  String? // TOTP secret (set once confirmed)
+  twoFactorEnabled Boolean  @default(false)
+  backupCodes      String? // JSON array of bcrypt-hashed one-time backup codes
+  createdAt        DateTime @default(now())
 }
 
 model Order {
